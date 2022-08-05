@@ -13,6 +13,10 @@ inputs:
   image:
     description: 'Image to scan (project/repo:tag)'
     required: true
+  fail-level:
+    description: 'Minimum Vulnerability level after which action considered as failed. Values: none, low, medium, high, critical'
+    required: false
+    default: 'critical'
   github-url:
     description: "github.event.issue.comments_url - for issue, github.event.pull_request.comments_url - for PR"
     required: false
@@ -35,6 +39,7 @@ runs:
     - ${{ inputs.harbor-robot }}
     - ${{ inputs.harbor-token }}
     - ${{ inputs.image }}
+    - ${{ inputs.fail-level }}
     - ${{ inputs.github-url }}
     - ${{ inputs.github-token }}
     - ${{ inputs.harbor-proto }}
