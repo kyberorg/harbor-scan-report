@@ -19,5 +19,5 @@ jobs:
           harbor-robot: ${{ secrets.HARBOR_ROBOT }}
           harbor-token: ${{ secrets.HARBOR_TOKEN }}
           image: hub/library/nginx:1.23.1
-          github-event: pr
+          github-url: ${{ github.event.issue.comments_url }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
