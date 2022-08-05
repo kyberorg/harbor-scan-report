@@ -13,10 +13,9 @@ inputs:
   image:
     description: 'Image to scan (project/repo:tag)'
     required: true
-  github-event:
-    description: 'Where we should write comment: PR or Issue. Valid values: pr, issue'
+  github-url:
+    description: '${{ github.event.issue.comments_url }} - for issue, ${{ github.event.pull_request.comments_url }} - for PR'
     required: false
-    default: 'pr'
   github-token:
     description: 'A GitHub personal access token used to commit to a branch on your behalf.'
     required: false
@@ -36,9 +35,7 @@ runs:
     - ${{ inputs.harbor-robot }}
     - ${{ inputs.harbor-token }}
     - ${{ inputs.image }}
-    - ${{ inputs.github-event }}
+    - ${{ inputs.github-url }}
     - ${{ inputs.github-token }}
     - ${{ inputs.harbor-proto }}
     - ${{ inputs.harbor-port }}
-    - ${{ github.event.issue.comments_url }}
-    - ${{ github.event.pull_request.comments_url }}

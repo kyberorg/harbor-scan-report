@@ -14,8 +14,6 @@ export IMAGE=${4}
 
 # GitHub Settings (if set comment will be written)
 export GITHUB_TOKEN=${6}
-export GITHUB_EVENT_TYPE=${5}
-export GITHUB_ISSUE_COMMENT_URL=${9}
-export GITHUB_PR_COMMENT_URL=${10}
+export GITHUB_URL=${5}
 
 /hsr
