@@ -1,0 +1,6 @@
+## Ignore everything by default
+**
+## But main.go should be in
+!cmd/main.go
+## Entrypoint should be in
+!entrypoint.sh
