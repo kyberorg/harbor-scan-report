@@ -99,7 +99,7 @@ func createHarborInstance() (*HarborInstance, error) {
 		protocol = DefaultProtocol
 	}
 	port := os.Getenv("HARBOR_PORT")
-	if !isPortValid(port) {
+	if isStringPresent(port) && !isPortValid(port) {
 		errText = fmt.Sprintf("port %s is invalid. Please re-check your configuration.", port)
 		err = errors.New(errText)
 		return nil, err
