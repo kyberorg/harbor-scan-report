@@ -3,6 +3,8 @@ package main
 import (
 	"errors"
 	"fmt"
+	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/level"
+	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/util"
 	"log"
 	"os"
 	"strconv"
@@ -31,15 +33,6 @@ type Image struct {
 	RepoName string
 	Tag      string
 }
-type FailLevel int8
-
-const (
-	Critical FailLevel = 4
-	High     FailLevel = 3
-	Medium   FailLevel = 2
-	Low      FailLevel = 1
-	None     FailLevel = 0
-)
 
 const (
 	DefaultProtocol = "https"
@@ -74,19 +67,26 @@ func main() {
 	if githubObject.Enabled {
 		writeComment(githubObject)
 	}
+
+	//fail level
+	failLevel, err := getFailLevel()
+	exitOnError(err)
+
+	fmt.Printf("Fail Level %v \n", failLevel)
+	fmt.Printf("More critical then High: %v \n", failLevel.IsMoreCriticalThen(level.High))
 }
 
 func createHarborInstance() (*HarborInstance, error) {
 	//Harbor Host
 	host := os.Getenv("HARBOR_HOST")
-	if isStringEmpty(host) {
+	if util.IsStringEmpty(host) {
 		err = errors.New("harbor host is undefined or empty")
 		return nil, err
 	}
 	//Protocol
 	protocol, isProtoPresent := os.LookupEnv("HARBOR_PROTO")
 	if isProtoPresent {
-		if isStringEmpty(protocol) {
+		if util.IsStringEmpty(protocol) {
 			protocol = DefaultProtocol
 		} else {
 			if protocol != "https" && protocol != "http" {
@@ -99,7 +99,7 @@ func createHarborInstance() (*HarborInstance, error) {
 		protocol = DefaultProtocol
 	}
 	port := os.Getenv("HARBOR_PORT")
-	if isStringPresent(port) && !isPortValid(port) {
+	if util.IsStringPresent(port) && !isPortValid(port) {
 		errText = fmt.Sprintf("port %s is invalid. Please re-check your configuration.", port)
 		err = errors.New(errText)
 		return nil, err
@@ -113,11 +113,11 @@ func createHarborInstance() (*HarborInstance, error) {
 
 func createHarborAccess() (*HarborAccess, error) {
 	robot := os.Getenv("HARBOR_ROBOT")
-	if isStringEmpty(robot) {
+	if util.IsStringEmpty(robot) {
 		return nil, errors.New("please specify Harbor Robot (or Username) to access Harbor with")
 	}
 	token := os.Getenv("HARBOR_TOKEN")
-	if isStringEmpty(token) {
+	if util.IsStringEmpty(token) {
 		return nil, errors.New("please specify Harbor Token (or Password) to access Harbor with")
 	}
 	return &HarborAccess{
@@ -130,7 +130,7 @@ func createGitHubObject() *Github {
 	ghToken := os.Getenv("GITHUB_TOKEN")
 	ghCommentUrl := os.Getenv("GITHUB_URL")
 
-	ghEnabled := isStringPresent(ghToken) && isStringPresent(ghCommentUrl)
+	ghEnabled := util.IsStringPresent(ghToken) && util.IsStringPresent(ghCommentUrl)
 
 	return &Github{
 		Enabled:    ghEnabled,
@@ -146,7 +146,7 @@ func createImageObject() (*Image, error) {
 	var image string
 
 	imageString := os.Getenv("IMAGE")
-	if isStringEmpty(imageString) {
+	if util.IsStringEmpty(imageString) {
 		return nil, errors.New("image undefined or empty")
 	}
 	//separate image and tag
@@ -175,6 +175,21 @@ func createImageObject() (*Image, error) {
 	}, nil
 }
 
+func getFailLevel() (level.FailLevel, error) {
+	failLevelString := os.Getenv("FAIL_LEVEL")
+	if util.IsStringEmpty(failLevelString) {
+		return level.None, nil
+	}
+
+	failLevel := level.CreateFromString(failLevelString)
+	if failLevel.IsValid() {
+		return failLevel, nil
+	} else {
+		return level.Undefined, errors.New(fmt.Sprintf("Wrong fail level: %s \n", failLevelString))
+
+	}
+}
+
 func runScan(instance *HarborInstance, access *HarborAccess, image *Image) {
 	//TODO implement
 	fmt.Printf("%+v\n", instance)
@@ -185,14 +200,6 @@ func runScan(instance *HarborInstance, access *HarborAccess, image *Image) {
 func writeComment(github *Github) {
 	//TODO implement
 	fmt.Printf("%+v\n", github)
-}
-
-func isStringEmpty(s string) bool {
-	return len(strings.TrimSpace(s)) == 0
-}
-
-func isStringPresent(s string) bool {
-	return !isStringEmpty(s)
 }
 
 func isPortValid(portString string) bool {

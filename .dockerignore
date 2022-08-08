@@ -1,6 +1,10 @@
 ## Ignore everything by default
 **
 ## But main.go should be in
-!cmd/main.go
+!cmd
+## Makefile should stay
+!Makefile
+## Allow go.mod
+!go.mod
 ## Entrypoint should be in
 !entrypoint.sh
