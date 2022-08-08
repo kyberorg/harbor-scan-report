@@ -177,14 +177,14 @@ func createImageObject() (*Image, error) {
 
 func runScan(instance *HarborInstance, access *HarborAccess, image *Image) {
 	//TODO implement
-	print(instance)
-	print(access)
-	print(image)
+	fmt.Printf("%+v\n", instance)
+	fmt.Printf("%+v\n", access)
+	fmt.Printf("%+v\n", image)
 }
 
 func writeComment(github *Github) {
 	//TODO implement
-	print(github)
+	fmt.Printf("%+v\n", github)
 }
 
 func isStringEmpty(s string) bool {
