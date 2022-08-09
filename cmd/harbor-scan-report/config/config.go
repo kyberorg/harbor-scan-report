@@ -187,6 +187,11 @@ func splitImageString() []string {
 		err = errors.New("image undefined or empty")
 		util.ExitOnError(err)
 	}
+	//if image starts with registry name - cut it down
+	registryName := getHarborHost()
+	if strings.HasPrefix(imageString, registryName) {
+		imageString = strings.Replace(imageString, registryName+"/", "", 1)
+	}
 	imageTagArray := strings.Split(imageString, ":")
 	if len(imageTagArray) > 2 || len(imageTagArray) < 1 {
 		err = errors.New("image string is malformed. Format project/image:tag")
