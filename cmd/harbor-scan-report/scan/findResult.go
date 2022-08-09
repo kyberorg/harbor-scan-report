@@ -1,5 +1,7 @@
 package scan
 
 type findImageOutput struct {
-	Found bool
+	Failed         bool
+	Found          bool
+	ScanResultsUrl string
 }

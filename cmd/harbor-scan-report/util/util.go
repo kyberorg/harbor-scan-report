@@ -1,6 +1,7 @@
 package util
 
 import (
+	"encoding/json"
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/log"
 	"strconv"
 	"strings"
@@ -29,4 +30,10 @@ func IsPortValid(portString string) bool {
 		const MaxPort = 65535
 		return port >= MinPort && port <= MaxPort
 	}
+}
+
+// PrettyPrint to print struct in a readable way
+func PrettyPrint(i interface{}) string {
+	s, _ := json.MarshalIndent(i, "", "\t")
+	return string(s)
 }

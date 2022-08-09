@@ -26,7 +26,7 @@ func Get() *appConfig {
 }
 
 func PrintConfig() string {
-	return fmt.Sprintf("%+v\n", config)
+	return util.PrettyPrint(config)
 }
 func init() {
 	config = &appConfig{
