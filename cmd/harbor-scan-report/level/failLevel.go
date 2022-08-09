@@ -63,6 +63,10 @@ func (level FailLevel) IsValid() bool {
 	return level != Undefined
 }
 
+func (level FailLevel) IsNotValid() bool {
+	return !level.IsValid()
+}
+
 func (level FailLevel) IsMoreCriticalThen(anotherLevel FailLevel) bool {
 	return level < anotherLevel
 }
