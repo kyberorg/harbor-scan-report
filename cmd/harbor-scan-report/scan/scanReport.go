@@ -5,12 +5,12 @@ import "github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/level"
 type Report struct {
 	Failed                  bool
 	Scanner                 Scanner
+	Counters                Counters
 	TopSeverity             level.FailLevel
 	CriticalVulnerabilities []Vulnerability
 	HighVulnerabilities     []Vulnerability
 	MediumVulnerabilities   []Vulnerability
 	LowVulnerabilities      []Vulnerability
-	Counters                Counters
 }
 
 type Scanner struct {
