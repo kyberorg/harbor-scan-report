@@ -1,7 +1,7 @@
 package util
 
 import (
-	"log"
+	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/log"
 	"strconv"
 	"strings"
 )
@@ -16,7 +16,7 @@ func IsStringPresent(s string) bool {
 
 func ExitOnError(err error) {
 	if err != nil {
-		log.Fatalln(err.Error())
+		log.Error.Fatalln(err.Error())
 	}
 }
 
