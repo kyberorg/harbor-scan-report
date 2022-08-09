@@ -11,7 +11,7 @@ type appConfig struct {
 
 type Harbor struct {
 	Instance   HarborInstance
-	AccessInfo HarborAccess
+	AccessInfo HarborCredentials
 }
 
 type HarborInstance struct {
@@ -20,7 +20,7 @@ type HarborInstance struct {
 	CustomPort string
 }
 
-type HarborAccess struct {
+type HarborCredentials struct {
 	Robot string
 	Token string
 }
