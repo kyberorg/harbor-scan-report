@@ -6,10 +6,11 @@ import (
 	"fmt"
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/config"
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/harbor"
+	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/level"
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/log"
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/util"
+	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/webutil"
 	"io/ioutil"
-	"net/http"
 )
 
 func RunScan() *Report {
@@ -27,11 +28,7 @@ func RunScan() *Report {
 }
 
 func findImage() *findImageOutput {
-	findEndpoint := harbor.GetFindImageEndpoint()
-	log.Debug.Println("Find Endpoint: " + findEndpoint)
-
-	// Get request
-	resp, err := http.Get(findEndpoint)
+	resp, err := webutil.DoFindRequest()
 	if err != nil {
 		fmt.Println("No response from request")
 	}
@@ -85,6 +82,90 @@ func findImage() *findImageOutput {
 func getScanReport(findResult *findImageOutput) *Report {
 	scanResultsEndpoint := findResult.ScanResultsUrl
 	log.Debug.Println("Getting Scan Report from: " + scanResultsEndpoint)
-	//TODO implement
-	return &Report{}
+	resp, err := webutil.DoScanReportRequest(scanResultsEndpoint)
+	if err != nil {
+		fmt.Println("No response from request")
+	}
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body) // response body is []byte
+
+	var goodResponse harbor.ScanResultsJson
+	var errorResponse harbor.ErrorJson
+
+	report := &Report{}
+
+	if resp.StatusCode == 200 {
+		report.Failed = false
+		err = json.Unmarshal(body, &goodResponse)
+		util.ExitOnError(err)
+	} else {
+		report.Failed = true
+		err = json.Unmarshal(body, &errorResponse)
+		util.ExitOnError(err)
+		log.Error.Println("Error getting scan report: " + errorResponse.Errors[0].Message)
+	}
+
+	if !report.Failed {
+		report = generateScanReport(goodResponse)
+	}
+	return report
+}
+
+func generateScanReport(json harbor.ScanResultsJson) *Report {
+	report := &Report{
+		Failed:                  false,
+		CriticalVulnerabilities: []Vulnerability{},
+		HighVulnerabilities:     []Vulnerability{},
+		MediumVulnerabilities:   []Vulnerability{},
+		LowVulnerabilities:      []Vulnerability{},
+	}
+	report.Scanner = Scanner{
+		Name:    json.VulnerabilityReport.Scanner.Name,
+		Vendor:  json.VulnerabilityReport.Scanner.Vendor,
+		Version: json.VulnerabilityReport.Scanner.Version,
+	}
+	report.TopSeverity = level.CreateFromString(json.VulnerabilityReport.Severity)
+	for _, v := range json.VulnerabilityReport.Vulnerabilities {
+		severity := level.CreateFromString(v.Severity)
+		if severity.IsNotValid() {
+			log.Warning.Printf("Skipping %s: wrong severity \n", v.ID)
+		}
+		vuln := Vulnerability{
+			ID:          v.ID,
+			Package:     v.Package,
+			Version:     v.Version,
+			FixVersion:  v.FixVersion,
+			Severity:    severity,
+			Description: v.Description,
+		}
+		if len(v.Links) > 0 {
+			vuln.Url = v.Links[0]
+		}
+		switch severity {
+		case level.Critical:
+			report.CriticalVulnerabilities = append(report.CriticalVulnerabilities, vuln)
+			break
+		case level.High:
+			report.HighVulnerabilities = append(report.HighVulnerabilities, vuln)
+			break
+		case level.Medium:
+			report.MediumVulnerabilities = append(report.MediumVulnerabilities, vuln)
+			break
+		case level.Low:
+			report.LowVulnerabilities = append(report.LowVulnerabilities, vuln)
+			break
+		default:
+			log.Warning.Printf("%s has unknown severity %s. Skipping.\n", vuln.ID, vuln.Severity)
+		}
+
+		report.Counters = Counters{
+			Total: len(report.CriticalVulnerabilities) + len(report.HighVulnerabilities) +
+				len(report.MediumVulnerabilities) + len(report.LowVulnerabilities),
+			Critical: len(report.CriticalVulnerabilities),
+			High:     len(report.HighVulnerabilities),
+			Medium:   len(report.MediumVulnerabilities),
+			Low:      len(report.LowVulnerabilities),
+		}
+	}
+	return report
 }
