@@ -10,8 +10,8 @@ type appConfig struct {
 }
 
 type Harbor struct {
-	Instance   HarborInstance
-	AccessInfo HarborCredentials
+	Instance    HarborInstance
+	Credentials HarborCredentials
 }
 
 type HarborInstance struct {

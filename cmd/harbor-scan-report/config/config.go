@@ -36,7 +36,7 @@ func init() {
 				Protocol:   getHarborProto(),
 				CustomPort: getHarborCustomPort(),
 			},
-			AccessInfo: HarborCredentials{
+			Credentials: HarborCredentials{
 				Robot: getHarborRobot(),
 				Token: getHarborToken(),
 			},
