@@ -21,8 +21,9 @@ type HarborInstance struct {
 }
 
 type HarborCredentials struct {
-	Robot string
-	Token string
+	Present bool
+	Robot   string
+	Token   string
 }
 
 type Github struct {

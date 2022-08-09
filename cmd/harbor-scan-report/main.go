@@ -8,9 +8,7 @@ import (
 )
 
 func main() {
-	log.Info.Println("Starting the application...")
-	log.Info.Println("Logging system initialized")
-	log.Debug.Println(config.PrintConfig())
+	log.Debug.Println("Application Configuration: " + config.PrintConfig())
 
 	//get scan results
 	scan.RunScan()

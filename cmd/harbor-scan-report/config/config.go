@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/level"
+	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/log"
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/util"
 	"os"
 	"strings"
@@ -37,8 +38,9 @@ func init() {
 				CustomPort: getHarborCustomPort(),
 			},
 			Credentials: HarborCredentials{
-				Robot: getHarborRobot(),
-				Token: getHarborToken(),
+				Present: false,
+				Robot:   getHarborRobot(),
+				Token:   getHarborToken(),
 			},
 		},
 		Github: Github{
@@ -54,6 +56,7 @@ func init() {
 		},
 		FailLevel: getFailLevel(),
 	}
+	updateCredentialsState()
 	updateGitHubState()
 }
 
@@ -97,8 +100,7 @@ func getHarborCustomPort() string {
 func getHarborRobot() string {
 	robot := os.Getenv("HARBOR_ROBOT")
 	if util.IsStringEmpty(robot) {
-		err = errors.New("please specify Harbor Robot (or Username) to access Harbor with")
-		util.ExitOnError(err)
+		log.Warning.Println("HARBOR_ROBOT is undefined. You can query public repositories only.")
 	}
 	return robot
 }
@@ -106,10 +108,14 @@ func getHarborRobot() string {
 func getHarborToken() string {
 	token := os.Getenv("HARBOR_TOKEN")
 	if util.IsStringEmpty(token) {
-		err = errors.New("please specify Harbor Token (or Password) to access Harbor with")
-		util.ExitOnError(err)
+		log.Warning.Println("HARBOR_TOKEN is undefined. You can query public repositories only.")
 	}
 	return token
+}
+
+func updateCredentialsState() {
+	config.Harbor.Credentials.Present = util.IsStringPresent(config.Harbor.Credentials.Robot) &&
+		util.IsStringPresent(config.Harbor.Credentials.Token)
 }
 
 func getGithubToken() string {

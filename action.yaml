@@ -6,10 +6,10 @@ inputs:
     required: true
   harbor-robot:
     description: 'Robot or Username to access Harbor with.'
-    required: true
+    required: false
   harbor-token:
     description: "Robot's Token (or Username's password)"
-    required: true
+    required: false
   image:
     description: 'Image to scan (project/repo:tag)'
     required: true
