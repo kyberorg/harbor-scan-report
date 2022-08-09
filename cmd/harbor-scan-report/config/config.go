@@ -47,6 +47,7 @@ func init() {
 			CommentUrl: getGithubCommentUrl(),
 		},
 		ImageInfo: ImageInfo{
+			Raw:      getImage(),
 			Project:  parseProject(),
 			RepoName: parseRepo(),
 			Tag:      parseTag(),
@@ -123,6 +124,10 @@ func getGithubCommentUrl() string {
 
 func updateGitHubState() {
 	config.Github.Enabled = util.IsStringPresent(config.Github.Token) && util.IsStringPresent(config.Github.CommentUrl)
+}
+
+func getImage() string {
+	return os.Getenv("IMAGE")
 }
 
 func parseProject() string {

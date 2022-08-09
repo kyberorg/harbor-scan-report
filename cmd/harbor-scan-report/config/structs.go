@@ -32,6 +32,7 @@ type Github struct {
 }
 
 type ImageInfo struct {
+	Raw      string
 	Project  string
 	RepoName string
 	Tag      string
