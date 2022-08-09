@@ -3,8 +3,8 @@ package config
 import (
 	"errors"
 	"fmt"
-	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/level"
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/log"
+	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/severity"
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/util"
 	"os"
 	"strings"
@@ -13,7 +13,7 @@ import (
 const (
 	DefaultProtocol = "https"
 	DefaultTag      = "latest"
-	DefaultLevel    = level.None
+	DefaultLevel    = severity.None
 )
 
 var (
@@ -54,7 +54,7 @@ func init() {
 			RepoName: parseRepo(),
 			Tag:      parseTag(),
 		},
-		FailLevel: getFailLevel(),
+		MaxAllowedSeverity: getMaxAllowedSeverity(),
 	}
 	updateCredentialsState()
 	updateGitHubState()
@@ -168,13 +168,13 @@ func parseTag() string {
 	}
 }
 
-func getFailLevel() level.FailLevel {
-	failLevelString := os.Getenv("FAIL_LEVEL")
+func getMaxAllowedSeverity() severity.Severity {
+	failLevelString := os.Getenv("MAX_ALLOWED_SEVERITY")
 	if util.IsStringEmpty(failLevelString) {
 		return DefaultLevel
 	}
 
-	failLevel := level.CreateFromString(failLevelString)
+	failLevel := severity.CreateFromString(failLevelString)
 	if failLevel.IsNotValid() {
 		err = errors.New(fmt.Sprintf("Wrong fail level: %s \n", failLevelString))
 		util.ExitOnError(err)

@@ -1,12 +1,14 @@
 package scan
 
-import "github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/level"
+import (
+	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/severity"
+)
 
 type Report struct {
 	Failed                  bool
 	Scanner                 Scanner
 	Counters                Counters
-	TopSeverity             level.FailLevel
+	TopSeverity             severity.Severity
 	CriticalVulnerabilities []Vulnerability
 	HighVulnerabilities     []Vulnerability
 	MediumVulnerabilities   []Vulnerability
@@ -25,7 +27,7 @@ type Vulnerability struct {
 	Package     string
 	Version     string
 	FixVersion  string
-	Severity    level.FailLevel
+	Severity    severity.Severity
 	Description string
 }
 

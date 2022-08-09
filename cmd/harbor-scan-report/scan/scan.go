@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/config"
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/harbor"
-	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/level"
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/log"
+	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/severity"
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/util"
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/webutil"
 	"io/ioutil"
@@ -124,10 +124,10 @@ func generateScanReport(json harbor.ScanResultsJson) *Report {
 		Vendor:  json.VulnerabilityReport.Scanner.Vendor,
 		Version: json.VulnerabilityReport.Scanner.Version,
 	}
-	report.TopSeverity = level.CreateFromString(json.VulnerabilityReport.Severity)
+	report.TopSeverity = severity.CreateFromString(json.VulnerabilityReport.Severity)
 	for _, v := range json.VulnerabilityReport.Vulnerabilities {
-		severity := level.CreateFromString(v.Severity)
-		if severity.IsNotValid() {
+		currentSeverity := severity.CreateFromString(v.Severity)
+		if currentSeverity.IsNotValid() {
 			log.Warning.Printf("Skipping %s: wrong severity \n", v.ID)
 		}
 		vuln := Vulnerability{
@@ -135,23 +135,23 @@ func generateScanReport(json harbor.ScanResultsJson) *Report {
 			Package:     v.Package,
 			Version:     v.Version,
 			FixVersion:  v.FixVersion,
-			Severity:    severity,
+			Severity:    currentSeverity,
 			Description: v.Description,
 		}
 		if len(v.Links) > 0 {
 			vuln.Url = v.Links[0]
 		}
-		switch severity {
-		case level.Critical:
+		switch currentSeverity {
+		case severity.Critical:
 			report.CriticalVulnerabilities = append(report.CriticalVulnerabilities, vuln)
 			break
-		case level.High:
+		case severity.High:
 			report.HighVulnerabilities = append(report.HighVulnerabilities, vuln)
 			break
-		case level.Medium:
+		case severity.Medium:
 			report.MediumVulnerabilities = append(report.MediumVulnerabilities, vuln)
 			break
-		case level.Low:
+		case severity.Low:
 			report.LowVulnerabilities = append(report.LowVulnerabilities, vuln)
 			break
 		default:

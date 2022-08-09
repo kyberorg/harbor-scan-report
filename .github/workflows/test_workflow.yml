@@ -21,3 +21,4 @@ jobs:
           image: kio.ee/kyberorg/ubi:debug
           github-url: ${{ github.event.pull_request.comments_url }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          max-allowed-severity: high

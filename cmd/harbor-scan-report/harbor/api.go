@@ -22,15 +22,6 @@ func GetFindImageEndpoint() string {
 		BuildHostPart(), ApiTwoZero, project, repo, tag)
 }
 
-/*
-func GetAuthHeader() string {
-	robotName := config.Get().Harbor.Credentials.Robot
-	token := config.Get().Harbor.Credentials.Token
-	//FIXME implement
-	return ""
-}
-*/
-
 func BuildHostPart() string {
 	proto := config.Get().Harbor.Instance.Protocol
 	host := config.Get().Harbor.Instance.Host

@@ -1,22 +1,22 @@
-package level
+package severity
 
 import (
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/util"
 	"strings"
 )
 
-type FailLevel int8
+type Severity int8
 
 const (
-	Critical  FailLevel = 4
-	High      FailLevel = 3
-	Medium    FailLevel = 2
-	Low       FailLevel = 1
-	None      FailLevel = 0
-	Undefined FailLevel = -1
+	Critical  Severity = 4
+	High      Severity = 3
+	Medium    Severity = 2
+	Low       Severity = 1
+	None      Severity = 0
+	Undefined Severity = -1
 )
 
-func CreateFromString(s string) FailLevel {
+func CreateFromString(s string) Severity {
 	if util.IsStringEmpty(s) {
 		return Undefined
 	}
@@ -37,7 +37,7 @@ func CreateFromString(s string) FailLevel {
 	}
 }
 
-func CreateFromInt(i int) FailLevel {
+func CreateFromInt(i int) Severity {
 	const MinLevel = 0
 	const MaxLevel = 4
 	if i < MinLevel || i > MaxLevel {
@@ -59,14 +59,14 @@ func CreateFromInt(i int) FailLevel {
 	}
 }
 
-func (level FailLevel) IsValid() bool {
-	return level != Undefined
+func (s Severity) IsValid() bool {
+	return s != Undefined
 }
 
-func (level FailLevel) IsNotValid() bool {
-	return !level.IsValid()
+func (s Severity) IsNotValid() bool {
+	return !s.IsValid()
 }
 
-func (level FailLevel) IsMoreCriticalThen(anotherLevel FailLevel) bool {
-	return level < anotherLevel
+func (s Severity) IsMoreCriticalThen(anotherSeverity Severity) bool {
+	return s < anotherSeverity
 }

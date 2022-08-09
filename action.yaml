@@ -13,8 +13,8 @@ inputs:
   image:
     description: 'Image to scan (project/repo:tag)'
     required: true
-  fail-level:
-    description: 'Minimum Vulnerability level after which action considered as failed. Values: none, low, medium, high, critical'
+  max-allowed-severity:
+    description: 'Minimum Vulnerability severity after which action considered as failed. Values: none, low, medium, high, critical'
     required: false
     default: 'critical'
   github-url:
@@ -39,7 +39,7 @@ runs:
     - ${{ inputs.harbor-robot }}
     - ${{ inputs.harbor-token }}
     - ${{ inputs.image }}
-    - ${{ inputs.fail-level }}
+    - ${{ inputs.max-allowed-severity }}
     - ${{ inputs.github-url }}
     - ${{ inputs.github-token }}
     - ${{ inputs.harbor-proto }}

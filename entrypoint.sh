@@ -11,7 +11,7 @@ export HARBOR_TOKEN=${3}
 
 # Harbor image
 export IMAGE=${4}
-export FAIL_LEVEL=${5}
+export MAX_ALLOWED_SEVERITY=${5}
 
 # GitHub Settings (if set comment will be written)
 export GITHUB_TOKEN=${7}

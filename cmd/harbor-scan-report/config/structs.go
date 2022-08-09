@@ -1,12 +1,14 @@
 package config
 
-import "github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/level"
+import (
+	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/severity"
+)
 
 type appConfig struct {
-	Harbor    Harbor
-	Github    Github
-	ImageInfo ImageInfo
-	FailLevel level.FailLevel
+	Harbor             Harbor
+	Github             Github
+	ImageInfo          ImageInfo
+	MaxAllowedSeverity severity.Severity
 }
 
 type Harbor struct {
