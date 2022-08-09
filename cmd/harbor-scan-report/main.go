@@ -7,7 +7,8 @@ import (
 )
 
 func main() {
-	config.PrintConfig()
+	initLoggingSystem()
+	Log.Debug.Println(config.PrintConfig())
 
 	//get scan results
 	scan.RunScan()
