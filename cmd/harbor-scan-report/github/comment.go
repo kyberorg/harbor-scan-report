@@ -28,7 +28,7 @@ func createMessage(report *scan.Report) string {
 	b.WriteString("## Harbor Scan Image Report \n")
 	b.WriteString(fmt.Sprintf("Result for image `%s` \n", config.Get().ImageInfo.Raw))
 	b.WriteString(fmt.Sprintf("Total %d vulnerabilities found \n", report.Counters.Total))
-	b.WriteString(fmt.Sprintf("%d [:lady_beetle:](## \"vulnerabilities\") "+
+	b.WriteString(fmt.Sprintf("[:lady_beetle:](## \"vulnerabilities\") %d total"+
 		"("+
 		"[:no_entry:](## \"critical\") %d critical "+
 		"[:fire:](## \"high\") %d high "+
