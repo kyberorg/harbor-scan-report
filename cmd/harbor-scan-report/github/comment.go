@@ -6,12 +6,16 @@ import (
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/harbor"
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/log"
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/scan"
+	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/severity"
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/webutil"
 	"strings"
 )
 
-func WriteComment(report *scan.Report) {
-	message := createMessage(report)
+var report *scan.Report
+
+func WriteComment(scanReport *scan.Report) {
+	report = scanReport
+	message := createMessage()
 	resp, err := webutil.DoGitHubCommentRequest(message)
 	if err != nil {
 		log.Warning.Printf("Failed to create GitHub Comment")
@@ -23,25 +27,46 @@ func WriteComment(report *scan.Report) {
 	}
 }
 
-func createMessage(report *scan.Report) string {
+func createMessage() string {
 	var b strings.Builder
 
 	b.WriteString("## Harbor Image Vulnerability Report \n")
 	b.WriteString(fmt.Sprintf("Results for image [%s](%s) \n", config.Get().ImageInfo.Raw, harbor.UiUrl()))
-	b.WriteString(fmt.Sprintf("Total %d vulnerabilities found - %d fixable) \n",
+	b.WriteString(fmt.Sprintf("Total %d vulnerabilities found - %d fixable \n",
 		report.Counters.Total, report.Counters.Fixable))
-	b.WriteString(fmt.Sprintf("[:lady_beetle:](## \"total vulnerabilities\") %d vulnerabilities "+
+	b.WriteString(fmt.Sprintf("[%s](## \"total vulnerabilities\") %d vulnerabilities "+
 		"("+
-		"[:no_entry:](## \"critical\") %d critical "+
-		"[:fire:](## \"high\") %d high "+
-		"[:warning:](## \"medium\") %d medium "+
-		"[:triangular_flag_on_post:](## \"low\") %d low"+
+		"[%s](## \"critical\") %d critical "+
+		"[%s](## \"high\") %d high "+
+		"[%s](## \"medium\") %d medium "+
+		"[%s](## \"low\") %d low"+
 		")",
-		report.Counters.Total,
-		report.Counters.Critical,
-		report.Counters.High,
-		report.Counters.Medium,
-		report.Counters.Low,
+		topSeverityEmoji(), report.Counters.Total,
+		s2e(severity.Critical), report.Counters.Critical,
+		s2e(severity.High), report.Counters.High,
+		s2e(severity.Medium), report.Counters.Medium,
+		s2e(severity.Low), report.Counters.Low,
 	))
 	return b.String()
+}
+
+func s2e(s severity.Severity) string {
+	switch s {
+	case severity.Critical:
+		return ":no_entry:"
+	case severity.High:
+		return ":fire:"
+	case severity.Medium:
+		return ":warning:"
+	case severity.Low:
+		return ":triangular_flag_on_post:"
+	case severity.None:
+		return ":heavy_check_mark:"
+	default:
+		return ":interrobang:"
+	}
+}
+
+func topSeverityEmoji() string {
+	return s2e(report.TopSeverity)
 }
