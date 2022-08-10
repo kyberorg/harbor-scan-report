@@ -2,10 +2,12 @@ package scan
 
 import (
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/severity"
+	"time"
 )
 
 type Report struct {
 	Failed                  bool
+	GeneratedAt             time.Time
 	Scanner                 Scanner
 	Counters                Counters
 	TopSeverity             severity.Severity

@@ -123,6 +123,7 @@ func getScanReport(findResult *findImageOutput) *Report {
 func generateScanReport(json harbor.ScanResultsJson) *Report {
 	report := &Report{
 		Failed:                  false,
+		GeneratedAt:             json.VulnerabilityReport.GeneratedAt,
 		CriticalVulnerabilities: []Vulnerability{},
 		HighVulnerabilities:     []Vulnerability{},
 		MediumVulnerabilities:   []Vulnerability{},

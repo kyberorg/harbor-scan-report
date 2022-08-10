@@ -32,9 +32,7 @@ func createMessage() string {
 
 	b.WriteString("## Harbor Image Vulnerability Report \n")
 	b.WriteString(fmt.Sprintf("Results for image [%s](%s) \n", config.Get().ImageInfo.Raw, harbor.UiUrl()))
-	if report.Counters.Total == 0 {
-		b.WriteString(s2e(severity.None) + " ")
-	}
+	b.WriteString(topSeverityEmoji() + " ")
 	b.WriteString(fmt.Sprintf("Total %d vulnerabilities found ",
 		report.Counters.Total))
 	if report.Counters.Total > 0 {
@@ -42,20 +40,21 @@ func createMessage() string {
 	}
 	b.WriteString(fmt.Sprintf("\n"))
 	if report.Counters.Total > 0 {
-		b.WriteString(fmt.Sprintf("[%s](## \"total vulnerabilities\") %d vulnerabilities "+
-			"("+
+		b.WriteString(fmt.Sprintf(
 			"[%s](## \"critical\") %d critical "+
-			"[%s](## \"high\") %d high "+
-			"[%s](## \"medium\") %d medium "+
-			"[%s](## \"low\") %d low"+
-			")",
-			topSeverityEmoji(), report.Counters.Total,
+				"[%s](## \"high\") %d high "+
+				"[%s](## \"medium\") %d medium "+
+				"[%s](## \"low\") %d low",
 			s2e(severity.Critical), report.Counters.Critical,
 			s2e(severity.High), report.Counters.High,
 			s2e(severity.Medium), report.Counters.Medium,
 			s2e(severity.Low), report.Counters.Low,
 		))
 	}
+	b.WriteString(fmt.Sprintf("Scanner with %s %s from %s \n",
+		report.Scanner.Name, report.Scanner.Version, report.Scanner.Vendor))
+	b.WriteString(fmt.Sprintf("Report generated at %s\n", report.GeneratedAt))
+
 	return b.String()
 }
 
