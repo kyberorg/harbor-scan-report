@@ -7,6 +7,7 @@ import (
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/log"
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/scan"
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/severity"
+	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/util"
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/webutil"
 	"strings"
 )
@@ -51,9 +52,9 @@ func createMessage() string {
 			s2e(severity.Low), report.Counters.Low,
 		))
 	}
-	b.WriteString(fmt.Sprintf("Scanner with %s %s from %s \n",
+	b.WriteString(fmt.Sprintf("Scanned with `%s %s` from `%s` \n",
 		report.Scanner.Name, report.Scanner.Version, report.Scanner.Vendor))
-	b.WriteString(fmt.Sprintf("Report generated at %s\n", report.GeneratedAt))
+	b.WriteString(fmt.Sprintf("Report generated at `%s`\n", util.PrettyDate(report.GeneratedAt)))
 
 	return b.String()
 }

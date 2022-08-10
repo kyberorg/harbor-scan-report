@@ -5,6 +5,7 @@ import (
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/log"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func IsStringEmpty(s string) bool {
@@ -36,4 +37,8 @@ func IsPortValid(portString string) bool {
 func PrettyPrint(i interface{}) string {
 	s, _ := json.MarshalIndent(i, "", "\t")
 	return string(s)
+}
+
+func PrettyDate(t time.Time) string {
+	return t.Format("2.1.2006 15:04:05-0700")
 }
