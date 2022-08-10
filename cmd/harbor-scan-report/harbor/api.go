@@ -8,6 +8,7 @@ import (
 )
 
 const ApiTwoZero = "api/v2.0"
+const UiPath = "harbor"
 
 func GetFindImageEndpoint() string {
 	project := config.Get().ImageInfo.Project
@@ -32,4 +33,12 @@ func BuildHostPart() string {
 		url = url + ":" + customPort
 	}
 	return url
+}
+
+func UiUrl() string {
+	project := config.Get().ImageInfo.Project
+	repository := config.Get().ImageInfo.RepoName
+
+	return fmt.Sprintf("%s/%s/projects/%s/repositories/%s/artifacts-tab",
+		BuildHostPart(), UiPath, project, repository)
 }

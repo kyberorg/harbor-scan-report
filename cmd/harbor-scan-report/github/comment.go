@@ -3,6 +3,7 @@ package github
 import (
 	"fmt"
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/config"
+	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/harbor"
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/log"
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/scan"
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/webutil"
@@ -26,9 +27,9 @@ func createMessage(report *scan.Report) string {
 	var b strings.Builder
 
 	b.WriteString("## Harbor Scan Image Report \n")
-	b.WriteString(fmt.Sprintf("Result for image `%s` \n", config.Get().ImageInfo.Raw))
+	b.WriteString(fmt.Sprintf("Result for image [%s](%s) \n", config.Get().ImageInfo.Raw, harbor.UiUrl()))
 	b.WriteString(fmt.Sprintf("Total %d vulnerabilities found \n", report.Counters.Total))
-	b.WriteString(fmt.Sprintf("[:lady_beetle:](## \"vulnerabilities\") %d total"+
+	b.WriteString(fmt.Sprintf("[:lady_beetle:](## \"vulnerabilities\") %d vulnerabilities "+
 		"("+
 		"[:no_entry:](## \"critical\") %d critical "+
 		"[:fire:](## \"high\") %d high "+
