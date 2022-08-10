@@ -28,9 +28,13 @@ func createMessage(report *scan.Report) string {
 	b.WriteString("## Harbor Scan Image Report \n")
 	b.WriteString(fmt.Sprintf("Result for image `%s` \n", config.Get().ImageInfo.Raw))
 	b.WriteString(fmt.Sprintf("Total %d vulnerabilities found \n", report.Counters.Total))
-	b.WriteString(fmt.Sprintf("%d [:lady_beetle:](vulnerabilities) "+
-		"([:no_entry:](\"critical\")  "+
-		" %d :fire: %d high :warning: %d medium :triangular_flag_on_post: %d low",
+	b.WriteString(fmt.Sprintf("%d [:lady_beetle:](## \"vulnerabilities\") "+
+		"("+
+		"[:no_entry:](## \"critical\") %d critical "+
+		"[:fire:](## \"high\") %d high "+
+		"[:warning:](## \"medium\") %d medium "+
+		"[:triangular_flag_on_post:](## \"low\") %d low"+
+		")",
 		report.Counters.Total,
 		report.Counters.Critical,
 		report.Counters.High,
