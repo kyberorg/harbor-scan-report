@@ -33,6 +33,7 @@ type Vulnerability struct {
 
 type Counters struct {
 	Total    int
+	Fixable  int
 	Critical int
 	High     int
 	Medium   int

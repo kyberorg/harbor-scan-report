@@ -134,6 +134,8 @@ func generateScanReport(json harbor.ScanResultsJson) *Report {
 		Version: json.VulnerabilityReport.Scanner.Version,
 	}
 	report.TopSeverity = severity.CreateFromString(json.VulnerabilityReport.Severity)
+
+	fixableVulnerabilityCounter := 0
 	for _, v := range json.VulnerabilityReport.Vulnerabilities {
 		currentSeverity := severity.CreateFromString(v.Severity)
 		if currentSeverity.IsNotValid() {
@@ -149,6 +151,9 @@ func generateScanReport(json harbor.ScanResultsJson) *Report {
 		}
 		if len(v.Links) > 0 {
 			vuln.Url = v.Links[0]
+		}
+		if util.IsStringPresent(v.FixVersion) {
+			fixableVulnerabilityCounter++
 		}
 		switch currentSeverity {
 		case severity.Critical:
@@ -166,15 +171,15 @@ func generateScanReport(json harbor.ScanResultsJson) *Report {
 		default:
 			log.Warning.Printf("%s has unknown severity %s. Skipping.\n", vuln.ID, vuln.Severity)
 		}
-
-		report.Counters = Counters{
-			Total: len(report.CriticalVulnerabilities) + len(report.HighVulnerabilities) +
-				len(report.MediumVulnerabilities) + len(report.LowVulnerabilities),
-			Critical: len(report.CriticalVulnerabilities),
-			High:     len(report.HighVulnerabilities),
-			Medium:   len(report.MediumVulnerabilities),
-			Low:      len(report.LowVulnerabilities),
-		}
+	}
+	report.Counters = Counters{
+		Total: len(report.CriticalVulnerabilities) + len(report.HighVulnerabilities) +
+			len(report.MediumVulnerabilities) + len(report.LowVulnerabilities),
+		Fixable:  fixableVulnerabilityCounter,
+		Critical: len(report.CriticalVulnerabilities),
+		High:     len(report.HighVulnerabilities),
+		Medium:   len(report.MediumVulnerabilities),
+		Low:      len(report.LowVulnerabilities),
 	}
 	return report
 }
