@@ -16,7 +16,7 @@ func GetFindImageEndpoint() string {
 	tag := config.Get().ImageInfo.Tag
 
 	if strings.Contains(repo, "/") {
-		repo = strings.ReplaceAll(repo, "/", "%252%")
+		repo = strings.ReplaceAll(repo, "/", "%252F")
 	}
 
 	return fmt.Sprintf("%s/%s/projects/%s/repositories/%s/artifacts?q=tags%%3D%s",
