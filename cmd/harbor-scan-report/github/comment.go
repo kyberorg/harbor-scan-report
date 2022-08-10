@@ -45,7 +45,7 @@ func createMessage() string {
 			"[%s](## \"critical\") %d critical "+
 				"[%s](## \"high\") %d high "+
 				"[%s](## \"medium\") %d medium "+
-				"[%s](## \"low\") %d low",
+				"[%s](## \"low\") %d low\n",
 			s2e(severity.Critical), report.Counters.Critical,
 			s2e(severity.High), report.Counters.High,
 			s2e(severity.Medium), report.Counters.Medium,
