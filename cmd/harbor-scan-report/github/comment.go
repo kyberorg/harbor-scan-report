@@ -32,12 +32,13 @@ func createMessage() string {
 
 	b.WriteString("## Harbor Image Vulnerability Report \n")
 	b.WriteString(fmt.Sprintf("Results for image [%s](%s) \n", config.Get().ImageInfo.Raw, harbor.UiUrl()))
+	if report.Counters.Total == 0 {
+		b.WriteString(s2e(severity.None))
+	}
 	b.WriteString(fmt.Sprintf("Total %d vulnerabilities found ",
 		report.Counters.Total))
 	if report.Counters.Total > 0 {
 		b.WriteString(fmt.Sprintf("- %d fixable ", report.Counters.Fixable))
-	} else {
-		b.WriteString(s2e(severity.None))
 	}
 	b.WriteString(fmt.Sprintf("\n"))
 	if report.Counters.Total > 0 {
