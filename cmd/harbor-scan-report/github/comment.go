@@ -26,11 +26,11 @@ func WriteComment(report *scan.Report) {
 func createMessage(report *scan.Report) string {
 	var b strings.Builder
 
-	b.WriteString("## Harbor Scan Image Report \n")
-	b.WriteString(fmt.Sprintf("Result for image [%s](%s) \n", config.Get().ImageInfo.Raw, harbor.UiUrl()))
-	b.WriteString(fmt.Sprintf("Total %d vulnerabilities found (%d fixable) \n",
+	b.WriteString("## Harbor Image Vulnerability Report \n")
+	b.WriteString(fmt.Sprintf("Results for image [%s](%s) \n", config.Get().ImageInfo.Raw, harbor.UiUrl()))
+	b.WriteString(fmt.Sprintf("Total %d vulnerabilities found - %d fixable) \n",
 		report.Counters.Total, report.Counters.Fixable))
-	b.WriteString(fmt.Sprintf("Total %d vulnerabilities "+
+	b.WriteString(fmt.Sprintf("[:lady_beetle:](## \"total vulnerabilities\") %d vulnerabilities "+
 		"("+
 		"[:no_entry:](## \"critical\") %d critical "+
 		"[:fire:](## \"high\") %d high "+
