@@ -37,28 +37,6 @@ func CreateFromString(s string) Severity {
 	}
 }
 
-func CreateFromInt(i int) Severity {
-	const MinLevel = 0
-	const MaxLevel = 4
-	if i < MinLevel || i > MaxLevel {
-		return Undefined
-	}
-	switch i {
-	case 0:
-		return None
-	case 1:
-		return Low
-	case 2:
-		return Medium
-	case 3:
-		return High
-	case 4:
-		return Critical
-	default:
-		return Undefined
-	}
-}
-
 func (s Severity) IsValid() bool {
 	return s != Undefined
 }
@@ -68,7 +46,7 @@ func (s Severity) IsNotValid() bool {
 }
 
 func (s Severity) IsMoreCriticalThen(anotherSeverity Severity) bool {
-	return s < anotherSeverity
+	return s > anotherSeverity
 }
 
 func (s Severity) String() string {
