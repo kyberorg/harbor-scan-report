@@ -6,6 +6,7 @@ import (
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/log"
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/scan"
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/webutil"
+	"strings"
 )
 
 func WriteComment(report *scan.Report) {
@@ -22,12 +23,16 @@ func WriteComment(report *scan.Report) {
 }
 
 func createMessage(report *scan.Report) string {
-	return fmt.Sprintf("Image '%s': %d vulnerabilities found (%d critical, %d high, %d medium, %d low)",
-		config.Get().ImageInfo.Raw,
-		report.Counters.Total,
+	var b strings.Builder
+
+	b.WriteString("## Harbor Scan Image Report \n")
+	b.WriteString(fmt.Sprintf("Result for image `%s` \n", config.Get().ImageInfo.Raw))
+	b.WriteString(fmt.Sprintf("%d vulnerabilities found", report.Counters.Total))
+	b.WriteString(fmt.Sprintf("[:no_entry:] %d critical [:fire:] %d high [:warning:] %d medium [:triangular_flag_on_post:] %d low",
 		report.Counters.Critical,
 		report.Counters.High,
 		report.Counters.Medium,
 		report.Counters.Low,
-	)
+	))
+	return b.String()
 }
