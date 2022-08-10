@@ -72,8 +72,10 @@ func findImage() *findImageOutput {
 			output.Failed = true
 		}
 		err = json.Unmarshal(body, &errorResponse)
-		if err != nil {
+		if err == nil {
 			log.Error.Println("Error searching image: " + errorResponse.Errors[0].Message)
+		} else {
+			log.Error.Println("Error searching image: " + string(body))
 		}
 		util.ExitOnError(err)
 	}
@@ -103,8 +105,10 @@ func getScanReport(findResult *findImageOutput) *Report {
 	} else {
 		report.Failed = true
 		err = json.Unmarshal(body, &errorResponse)
-		if err != nil {
+		if err == nil {
 			log.Error.Println("Error getting scan report: " + errorResponse.Errors[0].Message)
+		} else {
+			log.Error.Println("Error getting scan report: " + string(body))
 		}
 		util.ExitOnError(err)
 
