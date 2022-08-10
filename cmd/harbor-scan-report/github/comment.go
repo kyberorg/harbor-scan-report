@@ -36,6 +36,8 @@ func createMessage() string {
 		report.Counters.Total))
 	if report.Counters.Total > 0 {
 		b.WriteString(fmt.Sprintf("- %d fixable ", report.Counters.Fixable))
+	} else {
+		b.WriteString(s2e(severity.None))
 	}
 	b.WriteString(fmt.Sprintf("\n"))
 	if report.Counters.Total > 0 {
