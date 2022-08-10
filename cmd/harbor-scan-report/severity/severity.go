@@ -70,3 +70,20 @@ func (s Severity) IsNotValid() bool {
 func (s Severity) IsMoreCriticalThen(anotherSeverity Severity) bool {
 	return s < anotherSeverity
 }
+
+func (s Severity) String() string {
+	switch s {
+	case None:
+		return "None"
+	case Low:
+		return "Low"
+	case Medium:
+		return "Medium"
+	case High:
+		return "High"
+	case Critical:
+		return "Critical"
+	default:
+		return "Undefined"
+	}
+}
