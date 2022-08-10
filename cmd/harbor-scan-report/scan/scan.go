@@ -133,7 +133,11 @@ func generateScanReport(json harbor.ScanResultsJson) *Report {
 		Vendor:  json.VulnerabilityReport.Scanner.Vendor,
 		Version: json.VulnerabilityReport.Scanner.Version,
 	}
-	report.TopSeverity = severity.CreateFromString(json.VulnerabilityReport.Severity)
+	if len(json.VulnerabilityReport.Vulnerabilities) > 0 {
+		report.TopSeverity = severity.CreateFromString(json.VulnerabilityReport.Severity)
+	} else {
+		report.TopSeverity = severity.None
+	}
 
 	fixableVulnerabilityCounter := 0
 	for _, v := range json.VulnerabilityReport.Vulnerabilities {
