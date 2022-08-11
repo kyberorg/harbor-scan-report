@@ -46,7 +46,7 @@ func findImage() *findImageOutput {
 		output.Failed = false
 		output.Found = true
 
-		if len(goodResponse) == 0 {
+		if goodResponse == nil || len(goodResponse) == 0 {
 			output.Failed = true
 			log.Error.Println("Got malformed JSON in response. Raw response: " + string(body))
 			return output
