@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Run Report
-        uses: kyberorg/harbor-scan-report@${GITHUB_REF##*/}
+        uses: kyberorg/harbor-scan-report@trunk
         with:
           harbor-host: kio.ee
           harbor-robot: ${{ secrets.HARBOR_ROBOT }}
