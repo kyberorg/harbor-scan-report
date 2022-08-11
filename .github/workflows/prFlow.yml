@@ -1,0 +1,37 @@
+name: "Pull Request Flow"
+
+on:
+  pull_request:
+    branches:
+      - trunk
+
+jobs:
+  docker-image:
+    name: Build Image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set up Docker BuildX
+        uses: docker/setup-buildx-action@v2
+      - name: Build and push
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          tags: kio.ee/kyberorg/hsr:pr-${{ github.event.pull_request.number }}
+
+  scan-image:
+    name: Scan Image
+    needs: docker-image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run Report
+        uses: kyberorg/harbor-scan-report@${GITHUB_REF##*/}
+        with:
+          harbor-host: kio.ee
+          harbor-robot: ${{ secrets.HARBOR_ROBOT }}
+          harbor-token: ${{ secrets.HARBOR_TOKEN }}
+          image: kio.ee/kyberorg/hsr:pr-${{ github.event.pull_request.number }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-url: ${{ github.event.pull_request.comments_url }}
+          max-allowed-severity: high

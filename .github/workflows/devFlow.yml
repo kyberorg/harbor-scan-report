@@ -1,9 +1,9 @@
 name: "Development Workflow"
 
 on:
-  pull_request:
-    branches: [ trunk ]
-
+  push:
+    branches-ignore:
+      - trunk
 
 jobs:
   harbor-scan-report:
@@ -12,12 +12,11 @@ jobs:
 
     steps:
       - name: Run Report
-        uses: kyberorg/harbor-scan-report@mvp
+        uses: kyberorg/harbor-scan-report@${GITHUB_REF##*/}
         with:
           harbor-host: kio.ee
           harbor-robot: ${{ secrets.HARBOR_ROBOT }}
           harbor-token: ${{ secrets.HARBOR_TOKEN }}
           image: kio.ee/hub/redhat/ubi8:latest
-          github-url: ${{ github.event.pull_request.comments_url }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           max-allowed-severity: high
