@@ -12,16 +12,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Set up Docker BuildX
-        uses: docker/setup-buildx-action@v2
       - name: Login to kio.ee
         run: echo "${{ secrets.HARBOR_TOKEN }}" | docker login --username ${{ secrets.HARBOR_ROBOT }} --password-stdin kio.ee
       - name: Build and push
-        uses: docker/build-push-action@v3
-        with:
-          context: .
-          push: true
-          tags: kio.ee/kyberorg/hsr:trunk
+        run: docker build -t kio.ee/kyberorg/hsr:trunk . && docker push kio.ee/kyberorg/hsr:trunk
+      - name: Logout
+        run: docker logout kio.ee
 
   scan-image:
     name: Scan Image

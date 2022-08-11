@@ -20,11 +20,7 @@ jobs:
       - name: Login to kio.ee
         run: echo "${{ secrets.HARBOR_TOKEN }}" | docker login --username ${{ secrets.HARBOR_ROBOT }} --password-stdin kio.ee
 
-      - name: Set up Docker BuildX
-        uses: docker/setup-buildx-action@v2
       - name: Build and push
-        uses: docker/build-push-action@v3
-        with:
-          context: .
-          push: true
-          tags: kio.ee/kyberorg/hsr:${{ steps.get_tag.outputs.tag }}
+        run: docker build -t kio.ee/kyberorg/hsr:${{ steps.get_tag.outputs.tag }} . && docker push kio.ee/kyberorg/hsr:${{ steps.get_tag.outputs.tag }}
+      - name: Logout
+        run: docker logout kio.ee
