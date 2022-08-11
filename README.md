@@ -25,7 +25,7 @@ This action consists from 2 parts:
 * Minimal valid example
 ```yaml
 - name: Run Report
-        uses: kyberorg/harbor-scan-report@mvp
+        uses: kyberorg/harbor-scan-report@v0.1
         with:
           harbor-host: my_harbor.tld
           image: my_harbor.tld/hub/redhat/ubi8:latest
@@ -33,7 +33,7 @@ This action consists from 2 parts:
 * Full example
 ```yaml
 - name: Run Report
-        uses: kyberorg/harbor-scan-report@mvp
+        uses: kyberorg/harbor-scan-report@v0.1
         with:
           harbor-host: my_harbor.tld
           harbor-proto: http
