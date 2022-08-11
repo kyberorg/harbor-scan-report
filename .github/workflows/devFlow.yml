@@ -17,7 +17,7 @@ jobs:
           harbor-host: kio.ee
           harbor-robot: ${{ secrets.HARBOR_ROBOT }}
           harbor-token: ${{ secrets.HARBOR_TOKEN }}
-          image: kio.ee/yalsee/yalsee:prod
+          image: kio.ee/hub/redhat/ubi8:latest
           github-url: ${{ github.event.pull_request.comments_url }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           max-allowed-severity: high
