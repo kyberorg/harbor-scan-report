@@ -1,4 +1,7 @@
 name: 'Harbor Scan Report'
+branding:
+  icon: 'check-square'
+  color: 'yellow'
 description: 'Publish a Harbor image vulnerability scan report to PR comment'
 inputs:
   harbor-host:
