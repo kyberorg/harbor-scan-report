@@ -33,7 +33,7 @@ inputs:
     default: ''
 runs:
   using: 'docker'
-  image: 'Dockerfile'
+  image: 'kio.ee/kyberorg/hsr:0.1'
   args:
     - ${{ inputs.harbor-host }}
     - ${{ inputs.harbor-robot }}
