@@ -17,6 +17,7 @@ jobs:
       - name: Login to kio.ee
         uses: docker/login-action@v2
         with:
+          registry: kio.ee
           username: ${{ secrets.HARBOR_ROBOT }}
           password: ${{ secrets.HARBOR_TOKEN }}
       - name: Build and push
