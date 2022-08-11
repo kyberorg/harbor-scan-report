@@ -1,10 +1,9 @@
-name: "Test This Workflow"
+name: "Development Workflow"
 
 on:
   pull_request:
     branches: [ trunk ]
-  push:
-  workflow_dispatch:
+
 
 jobs:
   harbor-scan-report:
@@ -13,12 +12,12 @@ jobs:
 
     steps:
       - name: Run Report
-        uses: kyberorg/harbor-scan-report@poc
+        uses: kyberorg/harbor-scan-report@mvp
         with:
           harbor-host: kio.ee
           harbor-robot: ${{ secrets.HARBOR_ROBOT }}
           harbor-token: ${{ secrets.HARBOR_TOKEN }}
-          image: kio.ee/kyberorg/ubi:debug
+          image: kio.ee/yalsee/yalsee:prod
           github-url: ${{ github.event.pull_request.comments_url }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           max-allowed-severity: high
