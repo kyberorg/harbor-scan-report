@@ -46,6 +46,12 @@ func findImage() *findImageOutput {
 		output.Failed = false
 		output.Found = true
 
+		if goodResponse == nil || len(goodResponse) == 0 {
+			output.Failed = true
+			log.Error.Println("Got malformed JSON in response. Raw response: " + string(body))
+			return output
+		}
+
 		if goodResponse[0].AdditionLinks.Vulnerabilities.Absolute {
 			output.ScanResultsUrl = goodResponse[0].AdditionLinks.Vulnerabilities.Href
 		} else {
