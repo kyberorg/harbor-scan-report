@@ -15,3 +15,15 @@ Currently, it can comment Pull Requests (PR) and issues.
 * Clean image
 
 * Vulnerable image
+
+## Configuration
+* Minimal valid example
+```yaml
+
+```
+* Full example
+```yaml
+
+```
+
+## Parameters
