@@ -6,16 +6,29 @@ on:
       - trunk
 
 jobs:
+  docker-image:
+    name: Build Image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Login to kio.ee
+        run: echo "${{ secrets.HARBOR_TOKEN }}" | docker login --username ${{ secrets.HARBOR_ROBOT }} --password-stdin kio.ee
+      - name: Build and push
+        run: docker build -t kio.ee/kyberorg/hsr:dev . && docker push kio.ee/kyberorg/hsr:dev
+      - name: Logout
+        run: docker logout kio.ee
+
   harbor-scan-report:
     name: Harbor Image Scan Report
     runs-on: ubuntu-latest
 
     steps:
       - name: Run Report
-        uses: kyberorg/harbor-scan-report@mvp
+        uses: kyberorg/harbor-scan-report@7-bug
         with:
           harbor-host: kio.ee
           harbor-robot: ${{ secrets.HARBOR_ROBOT }}
           harbor-token: ${{ secrets.HARBOR_TOKEN }}
-          image: kio.ee/hub/redhat/ubi8:latest
+          image: kio.ee/kyberorg/hsr:dev
           max-allowed-severity: high
