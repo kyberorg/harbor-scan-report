@@ -22,6 +22,7 @@ jobs:
   harbor-scan-report:
     name: Harbor Image Scan Report
     runs-on: ubuntu-latest
+    needs: docker-image
 
     steps:
       - name: Run Report
