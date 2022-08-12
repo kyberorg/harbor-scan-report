@@ -19,7 +19,7 @@ func GetFindImageEndpoint() string {
 		repo = strings.ReplaceAll(repo, "/", "%252F")
 	}
 
-	return fmt.Sprintf("%s/%s/projects/%s/repositories/%s/artifacts?q=tags%%3D%s",
+	return fmt.Sprintf("%s/%s/projects/%s/repositories/%s/artifacts?q=tags%%3D%s&with_scan_overview=true",
 		BuildHostPart(), ApiTwoZero, project, repo, tag)
 }
 

@@ -10,21 +10,49 @@ import (
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/severity"
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/util"
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/webutil"
-	"io/ioutil"
+	"io"
+	"time"
 )
 
+const maxRetryAttempts = 3
+const waitSeconds = 5
+
+const scanReadyMarker = "Success"
+
+var retryCounter = 0
+
 func RunScan() *Report {
-	findResult := findImage()
-	if findResult.Failed {
-		util.ExitOnError(errors.New("search image request failed"))
+	var findResult *findImageOutput
+
+	for {
+		if retryCounter > maxRetryAttempts {
+			err := fmt.Sprintf("Failed to get report after %d attempts\n", maxRetryAttempts+1)
+			util.ExitOnError(errors.New(err))
+			return nil
+		} else if retryCounter > 0 {
+			log.Info.Printf("Retry %d \n", retryCounter)
+		}
+
+		findResult = findImage()
+		if findResult.Failed {
+			util.ExitOnError(errors.New("search image request failed"))
+			return nil
+		}
+		if !findResult.ImageFound {
+			err := errors.New(fmt.Sprintf("Image '%s' is not found", config.Get().ImageInfo.Raw))
+			util.ExitOnError(err)
+			return nil
+		}
+		if findResult.ScanCompleted {
+			log.Info.Println("Scan report is ready")
+			break
+		}
+
+		log.Info.Printf("Scan report is not ready yet. Waiting for %d seconds", waitSeconds)
+		time.Sleep(waitSeconds * time.Second)
+		retryCounter++
 	}
-	if findResult.Found {
-		return getScanReport(findResult)
-	} else {
-		err := errors.New(fmt.Sprintf("Image '%s' is not found", config.Get().ImageInfo.Raw))
-		util.ExitOnError(err)
-		return nil
-	}
+	return getScanReport(findResult)
 }
 
 func findImage() *findImageOutput {
@@ -33,24 +61,28 @@ func findImage() *findImageOutput {
 		fmt.Println("No response from request")
 	}
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body) // response body is []byte
+	body, err := io.ReadAll(resp.Body) // response body is []byte
 
 	var goodResponse harbor.FindImageJson
 	var errorResponse harbor.ErrorJson
 	output := &findImageOutput{}
 
+	//log.Debug.Println("Find image output: " + string(body))
 	if resp.StatusCode == 200 {
 		err = json.Unmarshal(body, &goodResponse)
 		util.ExitOnError(err)
 
 		output.Failed = false
-		output.Found = true
+		output.ImageFound = true
 
 		if goodResponse == nil || len(goodResponse) == 0 {
 			output.Failed = true
 			log.Error.Println("Got malformed JSON in response. Raw response: " + string(body))
 			return output
 		}
+		//log.Debug.Println("Find image resp: " + util.PrettyPrint(goodResponse))
+		scanStatus := goodResponse[0].ScanOverview.VulnerabilityReport.ScanStatus
+		output.ScanCompleted = util.IsStringPresent(scanStatus) && scanStatus == scanReadyMarker
 
 		if goodResponse[0].AdditionLinks.Vulnerabilities.Absolute {
 			output.ScanResultsUrl = goodResponse[0].AdditionLinks.Vulnerabilities.Href
@@ -71,7 +103,7 @@ func findImage() *findImageOutput {
 		case 404:
 			log.Error.Println("Image not found.")
 			output.Failed = false
-			output.Found = false
+			output.ImageFound = false
 			break
 		case 500:
 			log.Error.Println("Harbor-Side error")
@@ -91,19 +123,20 @@ func findImage() *findImageOutput {
 
 func getScanReport(findResult *findImageOutput) *Report {
 	scanResultsEndpoint := findResult.ScanResultsUrl
-	log.Debug.Println("Getting Scan Report from: " + scanResultsEndpoint)
+	//log.Debug.Println("Getting Scan Report from: " + scanResultsEndpoint)
 	resp, err := webutil.DoScanReportRequest(scanResultsEndpoint)
 	if err != nil {
 		fmt.Println("No response from request")
 	}
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body) // response body is []byte
+	body, err := io.ReadAll(resp.Body) // response body is []byte
 
 	var goodResponse harbor.ScanResultsJson
 	var errorResponse harbor.ErrorJson
 
 	report := &Report{}
 
+	//log.Debug.Println("Scan Report Raw body: " + string(body))
 	if resp.StatusCode == 200 {
 		report.Failed = false
 		err = json.Unmarshal(body, &goodResponse)
@@ -117,7 +150,6 @@ func getScanReport(findResult *findImageOutput) *Report {
 			log.Error.Println("Error getting scan report: " + string(body))
 		}
 		util.ExitOnError(err)
-
 	}
 
 	if !report.Failed {
