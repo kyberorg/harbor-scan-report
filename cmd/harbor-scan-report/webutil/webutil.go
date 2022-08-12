@@ -26,6 +26,7 @@ func DoFindRequest() (*http.Response, error) {
 		return nil, err
 	}
 	req.Header.Add(Accept, Json)
+	req.Header.Add(ReportTypeHeaderName, ReportTypeHeaderValue)
 	if config.Get().Harbor.Credentials.Present {
 		req.SetBasicAuth(config.Get().Harbor.Credentials.Robot, config.Get().Harbor.Credentials.Token)
 	}

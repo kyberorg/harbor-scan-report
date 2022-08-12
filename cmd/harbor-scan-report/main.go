@@ -5,7 +5,6 @@ import (
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/github"
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/log"
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/scan"
-	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/util"
 )
 
 func main() {
@@ -13,9 +12,9 @@ func main() {
 
 	//get scan results
 	scanReport := scan.RunScan()
-	log.Debug.Printf("Image '%s' Scan Report: \n %s", config.Get().ImageInfo.Raw, util.PrettyPrint(scanReport))
+	//log.Debug.Printf("Image '%s' Scan Report: \n %s", config.Get().ImageInfo.Raw, util.PrettyPrint(scanReport))
 
-	log.Debug.Printf("Image '%s': %d vulnerabilities found (%d critical, %d high, %d medium, %d low)",
+	log.Debug.Printf("Image '%s' has %d vulnerabilities (%d critical, %d high, %d medium, %d low)\n",
 		config.Get().ImageInfo.Raw,
 		scanReport.Counters.Total,
 		scanReport.Counters.Critical,
@@ -23,6 +22,9 @@ func main() {
 		scanReport.Counters.Medium,
 		scanReport.Counters.Low,
 	)
+	if scanReport.Counters.Total > 0 {
+		log.Debug.Printf("%d/%d fixable\n", scanReport.Counters.Fixable, scanReport.Counters.Total)
+	}
 
 	//write comment
 	if config.Get().Github.Enabled {

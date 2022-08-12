@@ -44,8 +44,30 @@ type FindImageJson []struct {
 	PushTime          time.Time   `json:"push_time,omitempty"`
 	References        interface{} `json:"references,omitempty"`
 	RepositoryID      int         `json:"repository_id,omitempty"`
-	Size              int         `json:"size,omitempty"`
-	Tags              []struct {
+	ScanOverview      struct {
+		VulnerabilityReport struct {
+			CompletePercent int       `json:"complete_percent,omitempty"`
+			Duration        int       `json:"duration,omitempty"`
+			EndTime         time.Time `json:"end_time,omitempty"`
+			ReportID        string    `json:"report_id,omitempty"`
+			ScanStatus      string    `json:"scan_status,omitempty"`
+			Scanner         struct {
+				Name    string `json:"name,omitempty"`
+				Vendor  string `json:"vendor,omitempty"`
+				Version string `json:"version,omitempty"`
+			} `json:"scanner,omitempty"`
+			Severity  string    `json:"severity,omitempty"`
+			StartTime time.Time `json:"start_time,omitempty"`
+			Summary   struct {
+				Fixable int `json:"fixable,omitempty"`
+				Summary struct {
+				} `json:"summary,omitempty"`
+				Total int `json:"total,omitempty"`
+			} `json:"summary,omitempty"`
+		} `json:"application/vnd.security.vulnerability.report; version=1.1,omitempty"`
+	} `json:"scan_overview,omitempty"`
+	Size int `json:"size,omitempty"`
+	Tags []struct {
 		ArtifactID   int       `json:"artifact_id,omitempty"`
 		ID           int       `json:"id,omitempty"`
 		Immutable    bool      `json:"immutable,omitempty"`
