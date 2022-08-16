@@ -10,8 +10,8 @@ import (
 type Mode string
 
 const (
-	CreateNew = "create_new"
-	Update    = "update"
+	CreateNew  = "create_new"
+	UpdateLast = "update_last"
 )
 
 func CreateCommentMode(s string) (error, Mode) {
@@ -20,11 +20,11 @@ func CreateCommentMode(s string) (error, Mode) {
 	}
 	str := strings.ToLower(s)
 	switch str {
-	case "update":
-		return nil, Update
-	case "create_new":
+	case "update_last", "update":
+		return nil, UpdateLast
+	case "new", "create_new":
 		return nil, CreateNew
 	default:
-		return errors.New(fmt.Sprintf("'%s' is wrong comment mode. Valid values: 'create_new' and 'update'", str)), CreateNew
+		return errors.New(fmt.Sprintf("'%s' is wrong comment mode. Valid values: 'create_new' and 'update_last'", str)), CreateNew
 	}
 }

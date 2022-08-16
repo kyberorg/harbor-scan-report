@@ -31,7 +31,7 @@ inputs:
     required: false
     default: 'Docker Image Vulnerability Report'
   comment-mode:
-    description: 'Create new comment or update exising. Possible values are: create_new, update'
+    description: 'Create new comment or update exising. Possible values are: create_new, update_last'
     required: false
     default: 'create_new'
   harbor-proto:

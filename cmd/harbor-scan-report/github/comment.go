@@ -28,7 +28,7 @@ func WriteComment(scanReport *scan.Report) {
 	commentMode := config.Get().Comment.Mode
 	var resp *http.Response
 	var err error
-	if commentMode == comment.Update {
+	if commentMode == comment.UpdateLast {
 		//search for existing comment
 		var commentUpdateUrl string
 		commentUpdateUrl, err = searchForExistingComment()
