@@ -110,7 +110,7 @@ Default: `Docker Image Vulnerability Report`
 ### `comment-mode`
 What shall be done on subsequent runs. Action can create new comment or update existing one. 
 
-Valid values: `create_new` and `update`
+Valid values: `create_new` and `update_last`
 
 Default value: `create_new`
 
