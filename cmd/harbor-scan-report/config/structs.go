@@ -1,6 +1,7 @@
 package config
 
 import (
+	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/comment"
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/severity"
 )
 
@@ -9,7 +10,7 @@ type appConfig struct {
 	Github             Github
 	ImageInfo          ImageInfo
 	MaxAllowedSeverity severity.Severity
-	CommentTitle       string
+	Comment            Comment
 }
 
 type Harbor struct {
@@ -40,4 +41,9 @@ type ImageInfo struct {
 	Project  string
 	RepoName string
 	Tag      string
+}
+
+type Comment struct {
+	Title string
+	Mode  comment.Mode
 }

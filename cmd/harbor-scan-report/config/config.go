@@ -3,6 +3,7 @@ package config
 import (
 	"errors"
 	"fmt"
+	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/comment"
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/log"
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/severity"
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/util"
@@ -56,7 +57,10 @@ func init() {
 			Tag:      parseTag(),
 		},
 		MaxAllowedSeverity: getMaxAllowedSeverity(),
-		CommentTitle:       getCommentTitle(),
+		Comment: Comment{
+			Title: getCommentTitle(),
+			Mode:  getCommentMode(),
+		},
 	}
 	updateCredentialsState()
 	updateGitHubState()
@@ -127,7 +131,7 @@ func getGithubToken() string {
 
 func getGithubCommentUrl() string {
 	ghCommentUrl := os.Getenv("GITHUB_URL")
-	return ghCommentUrl
+	return strings.TrimSpace(ghCommentUrl)
 }
 
 func updateGitHubState() {
@@ -190,6 +194,15 @@ func getCommentTitle() string {
 		customTitle = DefaultCommentTitle
 	}
 	return customTitle
+}
+
+func getCommentMode() comment.Mode {
+	commentMode := os.Getenv("COMMENT_MODE")
+	err, mode := comment.CreateCommentMode(commentMode)
+	if err != nil {
+		util.ExitOnError(err)
+	}
+	return mode
 }
 
 func parseImage() string {

@@ -49,7 +49,7 @@ func DoScanReportRequest(endpoint string) (*http.Response, error) {
 	return client.Do(req)
 }
 
-func DoGitHubCommentRequest(comment string) (*http.Response, error) {
+func DoGitHubCommentCreateRequest(comment string) (*http.Response, error) {
 	ghComment := githubComment{Body: comment}
 	body, err := json.Marshal(ghComment)
 	if err != nil {
@@ -58,6 +58,37 @@ func DoGitHubCommentRequest(comment string) (*http.Response, error) {
 	endpoint := config.Get().Github.CommentUrl
 	client := &http.Client{}
 	req, err := http.NewRequest("POST", endpoint, bytes.NewBuffer(body))
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Add(Accept, GitHubJson)
+	req.Header.Add(Authorization, "token "+config.Get().Github.Token)
+
+	return client.Do(req)
+}
+
+func DoGitHubCommentSearchRequest() (*http.Response, error) {
+	endpoint := config.Get().Github.CommentUrl
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", endpoint, nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Add(Accept, GitHubJson)
+	req.Header.Add(Authorization, "token "+config.Get().Github.Token)
+
+	return client.Do(req)
+}
+
+func DoGitHubCommentUpdateRequest(commentUrl string, comment string) (*http.Response, error) {
+	ghComment := githubComment{Body: comment}
+	body, err := json.Marshal(ghComment)
+	if err != nil {
+		return nil, err
+	}
+	endpoint := commentUrl
+	client := &http.Client{}
+	req, err := http.NewRequest("PATCH", endpoint, bytes.NewBuffer(body))
 	if err != nil {
 		return nil, err
 	}

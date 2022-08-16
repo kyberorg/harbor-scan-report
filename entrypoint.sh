@@ -19,5 +19,6 @@ export GITHUB_URL=${6}
 
 # Comment customization
 export COMMENT_TITLE=${10}
+export COMMENT_MODE=${11}
 
 /hsr
