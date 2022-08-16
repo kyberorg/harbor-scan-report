@@ -131,7 +131,7 @@ func getGithubToken() string {
 
 func getGithubCommentUrl() string {
 	ghCommentUrl := os.Getenv("GITHUB_URL")
-	return ghCommentUrl
+	return strings.TrimSpace(ghCommentUrl)
 }
 
 func updateGitHubState() {

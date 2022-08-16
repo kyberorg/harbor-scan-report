@@ -6,7 +6,6 @@ import (
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/config"
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/harbor"
 	"net/http"
-	"strconv"
 )
 
 const (
@@ -81,13 +80,13 @@ func DoGitHubCommentSearchRequest() (*http.Response, error) {
 	return client.Do(req)
 }
 
-func DoGitHubCommentUpdateRequest(commentId int, comment string) (*http.Response, error) {
+func DoGitHubCommentUpdateRequest(commentUrl string, comment string) (*http.Response, error) {
 	ghComment := githubComment{Body: comment}
 	body, err := json.Marshal(ghComment)
 	if err != nil {
 		return nil, err
 	}
-	endpoint := config.Get().Github.CommentUrl + "/" + strconv.Itoa(commentId)
+	endpoint := commentUrl
 	client := &http.Client{}
 	req, err := http.NewRequest("PATCH", endpoint, bytes.NewBuffer(body))
 	if err != nil {

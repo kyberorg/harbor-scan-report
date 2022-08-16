@@ -17,8 +17,8 @@ import (
 	"strings"
 )
 
-const WrongCommentId = -1
-const NotFoundCommentId = 0
+const ErrorMarker = "ErrorMarker"
+const CommentNotFoundMarker = "CommentNotFound"
 
 var report *scan.Report
 
@@ -30,21 +30,21 @@ func WriteComment(scanReport *scan.Report) {
 	var err error
 	if commentMode == comment.Update {
 		//search for existing comment
-		var commentId int
-		commentId, err = searchForExistingComment()
-		switch commentId {
-		case WrongCommentId:
+		var commentUpdateUrl string
+		commentUpdateUrl, err = searchForExistingComment()
+		switch commentUpdateUrl {
+		case ErrorMarker:
 			log.Warning.Println("Failed to update previous comment: got error while searching")
 			log.Debug.Printf("search error: " + err.Error())
 			resp, err = webutil.DoGitHubCommentCreateRequest(message)
 			break
-		case NotFoundCommentId:
+		case CommentNotFoundMarker:
 			log.Warning.Println("Failed to update previous comment: comment not found")
 			resp, err = webutil.DoGitHubCommentCreateRequest(message)
 			break
 		default:
 			//all good - updating comment
-			resp, err = webutil.DoGitHubCommentUpdateRequest(commentId, message)
+			resp, err = webutil.DoGitHubCommentUpdateRequest(commentUpdateUrl, message)
 		}
 	} else {
 		resp, err = webutil.DoGitHubCommentCreateRequest(message)
@@ -52,8 +52,11 @@ func WriteComment(scanReport *scan.Report) {
 
 	if err != nil {
 		log.Warning.Printf("Failed to create GitHub Comment")
+		util.ExitOnError(err)
 	}
-	if resp.StatusCode == 201 {
+	if resp.StatusCode == 200 {
+		log.Info.Println("GitHub comment updated")
+	} else if resp.StatusCode == 201 {
 		log.Info.Println("GitHub comment created")
 	} else {
 		log.Warning.Printf("Failed to create GitHub comment. Status: %d \n", resp.StatusCode)
@@ -116,36 +119,37 @@ func topSeverityEmoji() string {
 	return s2e(report.TopSeverity)
 }
 
-func searchForExistingComment() (int, error) {
+func searchForExistingComment() (string, error) {
 	resp, err := webutil.DoGitHubCommentSearchRequest()
 	if err != nil {
-		return WrongCommentId, err
+		return ErrorMarker, err
 	}
 	if resp.StatusCode == 200 {
 		var issueComments IssueComments
 		defer resp.Body.Close()
 		body, err := io.ReadAll(resp.Body)
 		if err != nil {
-			return WrongCommentId, err
+			return ErrorMarker, err
 		}
 		err = json.Unmarshal(body, &issueComments)
 		if err != nil {
-			return WrongCommentId, err
+			return ErrorMarker, err
 		}
+		commentUpdateUrl := CommentNotFoundMarker
 		for _, c := range issueComments {
-			if strings.HasSuffix(c.Body, getTitle()) {
-				return c.ID, nil
+			if strings.HasPrefix(c.Body, getTitle()) {
+				commentUpdateUrl = c.URL
 			}
 		}
-		return NotFoundCommentId, nil
+		return commentUpdateUrl, nil
 	} else {
 		switch resp.StatusCode {
 		case 404:
-			return WrongCommentId, errors.New("search for comments failed - no such issue found")
+			return ErrorMarker, errors.New("search for comments failed - no such issue found")
 		case 410:
-			return WrongCommentId, errors.New("search for comments failed - issue is gone")
+			return ErrorMarker, errors.New("search for comments failed - issue is gone")
 		default:
-			return WrongCommentId, errors.New("search for comments failed - unknown response code")
+			return ErrorMarker, errors.New("search for comments failed - unknown response code")
 		}
 	}
 }
