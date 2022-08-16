@@ -11,9 +11,10 @@ import (
 )
 
 const (
-	DefaultProtocol = "https"
-	DefaultTag      = "latest"
-	DefaultLevel    = severity.None
+	DefaultProtocol     = "https"
+	DefaultTag          = "latest"
+	DefaultLevel        = severity.None
+	DefaultCommentTitle = "Docker Image Vulnerability Report"
 )
 
 var (
@@ -55,6 +56,7 @@ func init() {
 			Tag:      parseTag(),
 		},
 		MaxAllowedSeverity: getMaxAllowedSeverity(),
+		CommentTitle:       getCommentTitle(),
 	}
 	updateCredentialsState()
 	updateGitHubState()
@@ -180,6 +182,14 @@ func getMaxAllowedSeverity() severity.Severity {
 		util.ExitOnError(err)
 	}
 	return failLevel
+}
+
+func getCommentTitle() string {
+	customTitle := os.Getenv("COMMENT_TITLE")
+	if util.IsStringEmpty(customTitle) {
+		customTitle = DefaultCommentTitle
+	}
+	return customTitle
 }
 
 func parseImage() string {

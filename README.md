@@ -102,6 +102,11 @@ Normally, it can is appended to action's secrets as `${{ secrets.GITHUB_TOKEN }}
 github-token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
+### `comment_title`
+String that is used as comment title.
+
+Default: `Docker Image Vulnerability Report`
+
 ### `harbor-proto`
 Protocol of Harbor instance. Use it, if your Harbor instance can be accessed only by using `http`.
 

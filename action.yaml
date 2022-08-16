@@ -26,6 +26,10 @@ inputs:
   github-token:
     description: 'A GitHub personal access token used to commit to a branch on your behalf.'
     required: false
+  comment_title:
+    description: 'Custom comment title'
+    required: false
+    default: 'Docker Image Vulnerability Report'
   harbor-proto:
     description: 'Protocol of Harbor instance. Use it, if your Harbor uses http'
     required: false
@@ -38,7 +42,7 @@ runs:
   using: 'docker'
   # uncomment for dev purposes
   # image: 'Dockerfile'
-  image: 'docker://kio.ee/kyberorg/hsr:v0.2'
+  image: 'docker://kio.ee/kyberorg/hsr:v0.3'
   args:
     - ${{ inputs.harbor-host }}
     - ${{ inputs.harbor-robot }}
@@ -49,3 +53,4 @@ runs:
     - ${{ inputs.github-token }}
     - ${{ inputs.harbor-proto }}
     - ${{ inputs.harbor-port }}
+    - ${{ inputs.comment_title }}

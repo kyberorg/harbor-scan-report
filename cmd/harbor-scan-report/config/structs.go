@@ -9,6 +9,7 @@ type appConfig struct {
 	Github             Github
 	ImageInfo          ImageInfo
 	MaxAllowedSeverity severity.Severity
+	CommentTitle       string
 }
 
 type Harbor struct {
