@@ -1,7 +1,10 @@
 package github
 
 import (
+	"encoding/json"
+	"errors"
 	"fmt"
+	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/comment"
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/config"
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/harbor"
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/log"
@@ -9,15 +12,44 @@ import (
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/severity"
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/util"
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/webutil"
+	"io"
+	"net/http"
 	"strings"
 )
+
+const WrongCommentId = -1
+const NotFoundCommentId = 0
 
 var report *scan.Report
 
 func WriteComment(scanReport *scan.Report) {
 	report = scanReport
 	message := createMessage()
-	resp, err := webutil.DoGitHubCommentRequest(message)
+	commentMode := config.Get().Comment.Mode
+	var resp *http.Response
+	var err error
+	if commentMode == comment.Update {
+		//search for existing comment
+		var commentId int
+		commentId, err = searchForExistingComment()
+		switch commentId {
+		case WrongCommentId:
+			log.Warning.Println("Failed to update previous comment: got error while searching")
+			log.Debug.Printf("search error: " + err.Error())
+			resp, err = webutil.DoGitHubCommentCreateRequest(message)
+			break
+		case NotFoundCommentId:
+			log.Warning.Println("Failed to update previous comment: comment not found")
+			resp, err = webutil.DoGitHubCommentCreateRequest(message)
+			break
+		default:
+			//all good - updating comment
+			resp, err = webutil.DoGitHubCommentUpdateRequest(commentId, message)
+		}
+	} else {
+		resp, err = webutil.DoGitHubCommentCreateRequest(message)
+	}
+
 	if err != nil {
 		log.Warning.Printf("Failed to create GitHub Comment")
 	}
@@ -31,7 +63,7 @@ func WriteComment(scanReport *scan.Report) {
 func createMessage() string {
 	var b strings.Builder
 
-	b.WriteString(fmt.Sprintf("## %s \n", config.Get().CommentTitle))
+	b.WriteString(getTitle())
 	b.WriteString(fmt.Sprintf("Results for image [%s](%s) \n", config.Get().ImageInfo.Raw, harbor.UiUrl()))
 	b.WriteString(topSeverityEmoji() + " ")
 	b.WriteString(fmt.Sprintf("Total %d vulnerabilities found ",
@@ -59,6 +91,10 @@ func createMessage() string {
 	return b.String()
 }
 
+func getTitle() string {
+	return fmt.Sprintf("## %s \n", config.Get().Comment.Title)
+}
+
 func s2e(s severity.Severity) string {
 	switch s {
 	case severity.Critical:
@@ -78,4 +114,38 @@ func s2e(s severity.Severity) string {
 
 func topSeverityEmoji() string {
 	return s2e(report.TopSeverity)
+}
+
+func searchForExistingComment() (int, error) {
+	resp, err := webutil.DoGitHubCommentSearchRequest()
+	if err != nil {
+		return WrongCommentId, err
+	}
+	if resp.StatusCode == 200 {
+		var issueComments IssueComments
+		defer resp.Body.Close()
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return WrongCommentId, err
+		}
+		err = json.Unmarshal(body, &issueComments)
+		if err != nil {
+			return WrongCommentId, err
+		}
+		for _, c := range issueComments {
+			if strings.HasSuffix(c.Body, getTitle()) {
+				return c.ID, nil
+			}
+		}
+		return NotFoundCommentId, nil
+	} else {
+		switch resp.StatusCode {
+		case 404:
+			return WrongCommentId, errors.New("search for comments failed - no such issue found")
+		case 410:
+			return WrongCommentId, errors.New("search for comments failed - issue is gone")
+		default:
+			return WrongCommentId, errors.New("search for comments failed - unknown response code")
+		}
+	}
 }

@@ -26,7 +26,7 @@ jobs:
 
     steps:
       - name: Run Report
-        uses: kyberorg/harbor-scan-report@2-custom-name
+        uses: kyberorg/harbor-scan-report@3-comment-mode
         with:
           harbor-host: kio.ee
           harbor-robot: ${{ secrets.HARBOR_ROBOT }}

@@ -26,10 +26,14 @@ inputs:
   github-token:
     description: 'A GitHub personal access token used to commit to a branch on your behalf.'
     required: false
-  comment_title:
+  comment-title:
     description: 'Custom comment title'
     required: false
     default: 'Docker Image Vulnerability Report'
+  comment-mode:
+    description: 'Create new comment or update exising. Possible values are: create_new, update'
+    required: false
+    default: 'create_new'
   harbor-proto:
     description: 'Protocol of Harbor instance. Use it, if your Harbor uses http'
     required: false
@@ -53,4 +57,5 @@ runs:
     - ${{ inputs.github-token }}
     - ${{ inputs.harbor-proto }}
     - ${{ inputs.harbor-port }}
-    - ${{ inputs.comment_title }}
+    - ${{ inputs.comment-title }}
+    - ${{ inputs.comment-mode }}
