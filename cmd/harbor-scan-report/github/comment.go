@@ -31,7 +31,7 @@ func WriteComment(scanReport *scan.Report) {
 func createMessage() string {
 	var b strings.Builder
 
-	b.WriteString("## Harbor Image Vulnerability Report \n")
+	b.WriteString(fmt.Sprintf("## %s \n", config.Get().CommentTitle))
 	b.WriteString(fmt.Sprintf("Results for image [%s](%s) \n", config.Get().ImageInfo.Raw, harbor.UiUrl()))
 	b.WriteString(topSeverityEmoji() + " ")
 	b.WriteString(fmt.Sprintf("Total %d vulnerabilities found ",

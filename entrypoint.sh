@@ -17,4 +17,7 @@ export MAX_ALLOWED_SEVERITY=${5}
 export GITHUB_TOKEN=${7}
 export GITHUB_URL=${6}
 
+# Comment customization
+export COMMENT_TITLE=${10}
+
 /hsr
