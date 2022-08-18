@@ -1,18 +1,31 @@
 package main
 
 import (
+	"errors"
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/config"
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/github"
+	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/image"
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/log"
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/scan"
+	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/util"
 )
 
 func main() {
 	log.Debug.Println("Application Configuration: " + config.PrintConfig())
 
+	//find Image
+	findResult := image.GetFinder().FindImage()
+	if findResult.Failed() {
+		if findResult.HasError() {
+			util.ExitOnError(findResult.GetError())
+		} else {
+			util.ExitOnError(errors.New("failed to find image"))
+		}
+	}
+
 	//get scan results
-	scanReport := scan.RunScan()
-	//log.Debug.Printf("Image '%s' Scan Report: \n %s", config.Get().ImageInfo.Raw, util.PrettyPrint(scanReport))
+	scanStatus := scan.WaitForScanCompeted()
+	scanReport := scan.GetScanReport(scanStatus)
 
 	log.Debug.Printf("Image '%s' has %d vulnerabilities (%d critical, %d high, %d medium, %d low)\n",
 		config.Get().ImageInfo.Raw,

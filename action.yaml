@@ -14,8 +14,11 @@ inputs:
     description: "Robot's Token (or Username's password)"
     required: false
   image:
-    description: 'Image to scan (project/repo:tag)'
+    description: 'Image to scan (project/repo:tag[@digest])'
     required: true
+  digest:
+    description: "Excepted SHA256 digest of image. Ignored, if digest is present in image. Format: 'sha256:01814f4b10f321f09244a919d34b0d5706d95624b4c69d75866bb9935a89582d'"
+    required: false
   max-allowed-severity:
     description: 'Minimum Vulnerability severity after which action considered as failed. Values: none, low, medium, high, critical'
     required: false
@@ -34,6 +37,14 @@ inputs:
     description: 'Create new comment or update exising. Possible values are: create_new, update_last'
     required: false
     default: 'create_new'
+  timeout:
+    description: 'How long action should wait for image and scan report (in seconds)'
+    required: false
+    default: '120'
+  check-interval:
+    description: 'Time (in seconds) between retries. Valid for waiting for image appears in Harbor and waiting for report'
+    required: false
+    default: '5'
   harbor-proto:
     description: 'Protocol of Harbor instance. Use it, if your Harbor uses http'
     required: false
@@ -46,7 +57,7 @@ runs:
   using: 'docker'
   # uncomment for dev purposes
   # image: 'Dockerfile'
-  image: 'docker://kio.ee/kyberorg/hsr:v0.3.2'
+  image: 'docker://kio.ee/kyberorg/hsr:v0.4'
   args:
     - ${{ inputs.harbor-host }}
     - ${{ inputs.harbor-robot }}
@@ -59,3 +70,6 @@ runs:
     - ${{ inputs.harbor-port }}
     - ${{ inputs.comment-title }}
     - ${{ inputs.comment-mode }}
+    - ${{ inputs.timeout }}
+    - ${{ inputs.check-interval }}
+    - ${{ inputs.digest }}

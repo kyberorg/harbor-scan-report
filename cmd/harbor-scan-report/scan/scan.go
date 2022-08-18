@@ -14,48 +14,81 @@ import (
 	"time"
 )
 
-const maxRetryAttempts = 3
-const waitSeconds = 5
-
 const scanReadyMarker = "Success"
 
-var retryCounter = 0
-
-func RunScan() *Report {
-	var findResult *findImageOutput
+func WaitForScanCompeted() *Status {
+	var scanStatus *Status
 
 	for {
-		if retryCounter > maxRetryAttempts {
-			err := fmt.Sprintf("Failed to get report after %d attempts\n", maxRetryAttempts+1)
-			util.ExitOnError(errors.New(err))
-			return nil
-		} else if retryCounter > 0 {
-			log.Info.Printf("Retry %d \n", retryCounter)
+		if config.IsTimeoutSet() {
+			if config.GetTimer().IsTimeOver() {
+				err := fmt.Sprintf("Failed to get report after %d seconds. Got timeout! \n",
+					config.Get().Timing.Timeout)
+				util.ExitOnError(errors.New(err))
+				return nil
+			}
 		}
 
-		findResult = findImage()
-		if findResult.Failed {
+		scanStatus = getScanStatus()
+		if scanStatus.Failed {
 			util.ExitOnError(errors.New("search image request failed"))
 			return nil
 		}
-		if !findResult.ImageFound {
+		if !scanStatus.ImageFound {
 			err := errors.New(fmt.Sprintf("Image '%s' is not found", config.Get().ImageInfo.Raw))
 			util.ExitOnError(err)
 			return nil
 		}
-		if findResult.ScanCompleted {
+		if scanStatus.ScanCompleted {
 			log.Info.Println("Scan report is ready")
 			break
 		}
 
-		log.Info.Printf("Scan report is not ready yet. Waiting for %d seconds", waitSeconds)
-		time.Sleep(waitSeconds * time.Second)
-		retryCounter++
+		log.Info.Printf("Scan report is not ready yet. Waiting for %d seconds",
+			config.Get().Timing.CheckInterval)
+		doPause()
 	}
-	return getScanReport(findResult)
+	return scanStatus
 }
 
-func findImage() *findImageOutput {
+func GetScanReport(scanStatus *Status) *Report {
+	scanResultsEndpoint := scanStatus.ScanResultsUrl
+	//log.Debug.Println("Getting Scan Report from: " + scanResultsEndpoint)
+	resp, err := webutil.DoScanReportRequest(scanResultsEndpoint)
+	if err != nil {
+		fmt.Println("No response from request")
+	}
+	defer resp.Body.Close()
+	body, err := io.ReadAll(resp.Body) // response body is []byte
+
+	var goodResponse harbor.ScanResultsJson
+	var errorResponse harbor.ErrorJson
+
+	report := &Report{}
+
+	//log.Debug.Println("Scan Report Raw body: " + string(body))
+	if resp.StatusCode == 200 {
+		report.Failed = false
+		err = json.Unmarshal(body, &goodResponse)
+		util.ExitOnError(err)
+	} else {
+		report.Failed = true
+		err = json.Unmarshal(body, &errorResponse)
+		if err == nil {
+			log.Error.Println("Error getting scan report: " + errorResponse.Errors[0].Message)
+		} else {
+			log.Error.Println("Error getting scan report: " + string(body))
+		}
+		util.ExitOnError(err)
+	}
+
+	if !report.Failed {
+		report = generateScanReport(goodResponse)
+	}
+	return report
+}
+
+func getScanStatus() *Status {
 	resp, err := webutil.DoFindRequest()
 	if err != nil {
 		fmt.Println("No response from request")
@@ -65,7 +98,7 @@ func findImage() *findImageOutput {
 
 	var goodResponse harbor.FindImageJson
 	var errorResponse harbor.ErrorJson
-	output := &findImageOutput{}
+	output := &Status{}
 
 	//log.Debug.Println("Find image output: " + string(body))
 	if resp.StatusCode == 200 {
@@ -121,41 +154,10 @@ func findImage() *findImageOutput {
 	return output
 }
 
-func getScanReport(findResult *findImageOutput) *Report {
-	scanResultsEndpoint := findResult.ScanResultsUrl
-	//log.Debug.Println("Getting Scan Report from: " + scanResultsEndpoint)
-	resp, err := webutil.DoScanReportRequest(scanResultsEndpoint)
-	if err != nil {
-		fmt.Println("No response from request")
-	}
-	defer resp.Body.Close()
-	body, err := io.ReadAll(resp.Body) // response body is []byte
-
-	var goodResponse harbor.ScanResultsJson
-	var errorResponse harbor.ErrorJson
-
-	report := &Report{}
-
-	//log.Debug.Println("Scan Report Raw body: " + string(body))
-	if resp.StatusCode == 200 {
-		report.Failed = false
-		err = json.Unmarshal(body, &goodResponse)
-		util.ExitOnError(err)
-	} else {
-		report.Failed = true
-		err = json.Unmarshal(body, &errorResponse)
-		if err == nil {
-			log.Error.Println("Error getting scan report: " + errorResponse.Errors[0].Message)
-		} else {
-			log.Error.Println("Error getting scan report: " + string(body))
-		}
-		util.ExitOnError(err)
-	}
-
-	if !report.Failed {
-		report = generateScanReport(goodResponse)
-	}
-	return report
+func doPause() {
+	checkInterval := config.Get().Timing.CheckInterval
+	time.Sleep(time.Duration(checkInterval) * time.Second)
+	config.GetTimer().SecondsLeft = config.GetTimer().SecondsLeft - checkInterval
 }
 
 func generateScanReport(json harbor.ScanResultsJson) *Report {

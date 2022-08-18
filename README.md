@@ -41,6 +41,9 @@ This action consists from 2 parts:
           harbor-robot: ${{ secrets.HARBOR_ROBOT }}
           harbor-token: ${{ secrets.HARBOR_TOKEN }}
           image: my_harbor.tld:8080/hub/redhat/ubi8:latest
+          digest: sha256:01814f4b10f321f09244a919d34b0d5706d95624b4c69d75866bb9935a89582d
+          timeout: 150
+          check-interval: 10
           max-allowed-severity: high
           github-url: ${{ github.event.pull_request.comments_url }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -53,11 +56,23 @@ String with hostname, without protocol and port.
 Required: `yes`
 
 ### `image`
-Image to scan. Format: `registry.tld/project/repo:tag` or `project/repo:tag`. 
+Image to scan. Format: `registry.tld/project/repo:tag[@sha256:digest]` or `project/repo:tag[@sha256:digest]`. 
 
 Tag is optional, if tag missing default tag `latest` will be used.  
 
+Digest is also optional. You can set it using [digest input](#digest)
+
 Required: `yes`
+
+### `digest`
+
+You can specify image digest, that you expect. This is useful for rolling tags.
+
+Action will wait until image has given digest.
+
+Format: `sha256:01814f4b10f321f09244a919d34b0d5706d95624b4c69d75866bb9935a89582d`
+
+Required: `no`
 
 ### `harbor-robot`
 Robot or Username to access Harbor with. Robot with limited privileges is preferred.
@@ -113,6 +128,22 @@ What shall be done on subsequent runs. Action can create new comment or update e
 Valid values: `create_new` and `update_last`
 
 Default value: `create_new`
+
+### `timeout`
+Time in seconds, after which action fails. 
+
+First, action waits for image been present in Harbor, second it waits for scan report been ready.
+
+Should positive integer with number of seconds.
+
+Default: `120` (2 minutes)
+
+### `check-interval`
+Time in seconds between doing requests to Harbor. Valid for waiting for image appears in Harbor and waiting for scan report.
+
+Should positive integer with number of seconds.
+
+Default: `5` (5 seconds)
 
 ### `harbor-proto`
 Protocol of Harbor instance. Use it, if your Harbor instance can be accessed only by using `http`.
