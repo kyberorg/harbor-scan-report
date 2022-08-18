@@ -41,6 +41,9 @@ This action consists from 2 parts:
           harbor-robot: ${{ secrets.HARBOR_ROBOT }}
           harbor-token: ${{ secrets.HARBOR_TOKEN }}
           image: my_harbor.tld:8080/hub/redhat/ubi8:latest
+          digest: sha256:01814f4b10f321f09244a919d34b0d5706d95624b4c69d75866bb9935a89582d
+          timeout: 150
+          check-interval: 10
           max-allowed-severity: high
           github-url: ${{ github.event.pull_request.comments_url }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
