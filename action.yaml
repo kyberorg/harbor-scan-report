@@ -37,6 +37,14 @@ inputs:
     description: 'Create new comment or update exising. Possible values are: create_new, update_last'
     required: false
     default: 'create_new'
+  timeout:
+    description: 'How long action should wait for image and scan report (in seconds)'
+    required: false
+    default: '120'
+  check-interval:
+    description: 'Time (in seconds) between retries. Valid for waiting for image appears in Harbor and waiting for report'
+    required: false
+    default: '5'
   harbor-proto:
     description: 'Protocol of Harbor instance. Use it, if your Harbor uses http'
     required: false
@@ -62,3 +70,6 @@ runs:
     - ${{ inputs.harbor-port }}
     - ${{ inputs.comment-title }}
     - ${{ inputs.comment-mode }}
+    - ${{ inputs.timeout }}
+    - ${{ inputs.check-interval }}
+    - ${{ inputs.digest }}
