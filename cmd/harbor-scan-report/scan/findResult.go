@@ -1,6 +1,6 @@
 package scan
 
-type findImageOutput struct {
+type Status struct {
 	Failed         bool
 	ImageFound     bool
 	ScanCompleted  bool

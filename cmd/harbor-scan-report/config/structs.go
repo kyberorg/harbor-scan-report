@@ -11,6 +11,7 @@ type appConfig struct {
 	ImageInfo          ImageInfo
 	MaxAllowedSeverity severity.Severity
 	Comment            Comment
+	Timing             Timing
 }
 
 type Harbor struct {
@@ -41,9 +42,15 @@ type ImageInfo struct {
 	Project  string
 	RepoName string
 	Tag      string
+	Digest   string
 }
 
 type Comment struct {
 	Title string
 	Mode  comment.Mode
+}
+
+type Timing struct {
+	Timeout       int
+	CheckInterval int
 }

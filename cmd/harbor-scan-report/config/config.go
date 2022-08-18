@@ -8,24 +8,36 @@ import (
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/severity"
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/util"
 	"os"
+	"strconv"
 	"strings"
 )
 
 const (
-	DefaultProtocol     = "https"
-	DefaultTag          = "latest"
-	DefaultLevel        = severity.None
-	DefaultCommentTitle = "Docker Image Vulnerability Report"
+	DefaultProtocol      = "https"
+	DefaultTag           = "latest"
+	DefaultLevel         = severity.None
+	DefaultCommentTitle  = "Docker Image Vulnerability Report"
+	DefaultTimeout       = 120
+	DefaultCheckInterval = 5
 )
 
 var (
 	config  *appConfig
+	timer   *Timer
 	err     error
 	errText string
 )
 
 func Get() *appConfig {
 	return config
+}
+
+func IsTimeoutSet() bool {
+	return config.Timing.Timeout != 0
+}
+
+func GetTimer() *Timer {
+	return timer
 }
 
 func PrintConfig() string {
@@ -55,15 +67,21 @@ func init() {
 			Project:  parseProject(),
 			RepoName: parseRepo(),
 			Tag:      parseTag(),
+			Digest:   parseDigest(),
 		},
 		MaxAllowedSeverity: getMaxAllowedSeverity(),
 		Comment: Comment{
 			Title: getCommentTitle(),
 			Mode:  getCommentMode(),
 		},
+		Timing: Timing{
+			Timeout:       getTimeout(),
+			CheckInterval: getCheckInterval(),
+		},
 	}
 	updateCredentialsState()
 	updateGitHubState()
+	createTimer()
 }
 
 func getHarborHost() string {
@@ -138,6 +156,12 @@ func updateGitHubState() {
 	config.Github.Enabled = util.IsStringPresent(config.Github.Token) && util.IsStringPresent(config.Github.CommentUrl)
 }
 
+func createTimer() {
+	timer = &Timer{
+		SecondsLeft: config.Timing.Timeout,
+	}
+}
+
 func getImage() string {
 	return os.Getenv("IMAGE")
 }
@@ -170,7 +194,40 @@ func parseTag() string {
 	if len(imageTagArray) == 1 {
 		return DefaultTag
 	} else {
+		tagPart := imageTagArray[1]
+		if strings.Contains(tagPart, "@") {
+			tagArray := strings.Split(tagPart, "@")
+			if len(tagArray) > 0 {
+				return tagArray[0]
+			} else {
+				err = errors.New("image string is malformed. Format project/image:tag[@digest]")
+				util.ExitOnError(err)
+				return ""
+			}
+
+		}
 		return imageTagArray[1]
+	}
+}
+
+func parseDigest() string {
+	imageString := getImageString()
+	imageShaArray := strings.Split(imageString, "@")
+
+	if len(imageShaArray) > 2 || len(imageShaArray) < 1 {
+		err = errors.New("image string is malformed. Format project/image:tag[@digest]")
+		util.ExitOnError(err)
+		return ""
+	} else if len(imageShaArray) == 2 {
+		return imageShaArray[1]
+	} else {
+		//no sha in image
+		digestParam := os.Getenv("DIGEST")
+		if util.IsStringPresent(digestParam) && strings.HasPrefix(digestParam, "sha256:") {
+			return digestParam
+		} else {
+			return ""
+		}
 	}
 }
 
@@ -199,10 +256,41 @@ func getCommentTitle() string {
 func getCommentMode() comment.Mode {
 	commentMode := os.Getenv("COMMENT_MODE")
 	err, mode := comment.CreateCommentMode(commentMode)
+	util.ExitOnError(err)
+	return mode
+}
+
+func getTimeout() int {
+	timeoutString := os.Getenv("TIMEOUT")
+	if util.IsStringEmpty(timeoutString) {
+		return DefaultTimeout
+	}
+	timeout, err := strconv.Atoi(timeoutString)
 	if err != nil {
+		util.ExitOnError(errors.New("timeout should be number"))
+	}
+
+	if timeout < 0 {
+		err = errors.New("timeout should be positive number of seconds")
 		util.ExitOnError(err)
 	}
-	return mode
+	return timeout
+}
+
+func getCheckInterval() int {
+	intervalString := os.Getenv("CHECK_INTERVAL")
+	if util.IsStringEmpty(intervalString) {
+		return DefaultCheckInterval
+	}
+	interval, err := strconv.Atoi(intervalString)
+	if err != nil {
+		util.ExitOnError(errors.New("check interval should be number"))
+	}
+	if interval < 0 {
+		err = errors.New("interval should be positive number of seconds")
+		util.ExitOnError(err)
+	}
+	return interval
 }
 
 func parseImage() string {
@@ -211,20 +299,25 @@ func parseImage() string {
 }
 
 func splitImageString() []string {
-	imageString := os.Getenv("IMAGE")
-	if util.IsStringEmpty(imageString) {
-		err = errors.New("image undefined or empty")
-		util.ExitOnError(err)
-	}
+	imageString := getImageString()
 	//if image starts with registry name - cut it down
 	registryName := getHarborHost()
 	if strings.HasPrefix(imageString, registryName) {
 		imageString = strings.Replace(imageString, registryName+"/", "", 1)
 	}
 	imageTagArray := strings.Split(imageString, ":")
-	if len(imageTagArray) > 2 || len(imageTagArray) < 1 {
-		err = errors.New("image string is malformed. Format project/image:tag")
+	if len(imageTagArray) > 3 || len(imageTagArray) < 1 {
+		err = errors.New("image string is malformed. Format project/image:tag[@digest]")
 		util.ExitOnError(err)
 	}
 	return imageTagArray
+}
+
+func getImageString() string {
+	imageString := os.Getenv("IMAGE")
+	if util.IsStringEmpty(imageString) {
+		err = errors.New("image undefined or empty")
+		util.ExitOnError(err)
+	}
+	return imageString
 }

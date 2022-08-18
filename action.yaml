@@ -14,8 +14,11 @@ inputs:
     description: "Robot's Token (or Username's password)"
     required: false
   image:
-    description: 'Image to scan (project/repo:tag)'
+    description: 'Image to scan (project/repo:tag[@digest])'
     required: true
+  digest:
+    description: "Excepted SHA256 digest of image. Ignored, if digest is present in image. Format: 'sha256:01814f4b10f321f09244a919d34b0d5706d95624b4c69d75866bb9935a89582d'"
+    required: false
   max-allowed-severity:
     description: 'Minimum Vulnerability severity after which action considered as failed. Values: none, low, medium, high, critical'
     required: false
