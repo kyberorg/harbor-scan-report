@@ -68,6 +68,7 @@ func createMessage() string {
 
 	b.WriteString(getTitle())
 	b.WriteString(fmt.Sprintf("Results for image [%s](%s) \n", config.Get().ImageInfo.Raw, harbor.UiUrl()))
+	b.WriteString(fmt.Sprintf("\n"))
 	b.WriteString(topSeverityEmoji() + " ")
 	b.WriteString(fmt.Sprintf("Total %d vulnerabilities found ",
 		report.Counters.Total))
@@ -87,6 +88,7 @@ func createMessage() string {
 			s2e(severity.Low), report.Counters.Low,
 		))
 	}
+	b.WriteString(fmt.Sprintf("\n"))
 	b.WriteString(fmt.Sprintf("Scanned with `%s %s` from `%s` \n",
 		report.Scanner.Name, report.Scanner.Version, report.Scanner.Vendor))
 	b.WriteString(fmt.Sprintf("Report generated at `%s`\n", util.PrettyDate(report.GeneratedAt)))
