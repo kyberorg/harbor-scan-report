@@ -22,5 +22,9 @@ jobs:
 
       - name: Build and push
         run: docker build -t kio.ee/kyberorg/hsr:${{ steps.get_tag.outputs.tag }} . && docker push kio.ee/kyberorg/hsr:${{ steps.get_tag.outputs.tag }}
+
+      - name: Create Job Comment
+        run: echo "### Created image kio.ee/kyberorg/hsr:${{ steps.get_tag.outputs.tag }} :rocket:" >> $GITHUB_STEP_SUMMARY
+
       - name: Logout
         run: docker logout kio.ee
