@@ -45,7 +45,7 @@ func main() {
 	}
 	//write step comment
 	if config.Get().Github.HasToken {
-		github.WriteStepComment(scanReport)
+		github.WriteStepSummary(scanReport)
 	}
 	//fail job if image has more critical vulnerabilities than allowed
 	if scanReport.TopSeverity.IsMoreCriticalThen(config.Get().MaxAllowedSeverity) {

@@ -3,20 +3,28 @@ package github
 import (
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/log"
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/scan"
+	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/util"
 	"os"
 )
 
 const StepSummaryEnvVar = "GITHUB_STEP_SUMMARY"
 
-func WriteStepComment(scanReport *scan.Report) {
+func WriteStepSummary(scanReport *scan.Report) {
 	//append to GITHUB_STEP_SUMMARY env
 	report = scanReport
 
-	//currentStepSummary := os.Getenv(StepSummaryEnvVar)
-	err := os.Setenv(StepSummaryEnvVar, "## It works!")
-	if err != nil {
-		log.Warning.Printf("Failed to write Step Comment. Error: %s", err.Error())
+	stepCommentFile := os.Getenv(StepSummaryEnvVar)
+	if util.IsStringEmpty(stepCommentFile) {
+		log.Warning.Printf("Skipping writing Step Summary. %s envVar is empty", StepSummaryEnvVar)
+		return
 	}
 
-	log.Debug.Printf("Current value: %s \n", os.Getenv(StepSummaryEnvVar))
+	message := "## It works!"
+
+	err := os.WriteFile(stepCommentFile, []byte(message), 0600)
+	if err != nil {
+		log.Warning.Printf("Failed to write step summary. Got I/O error: %s \n", err.Error())
+	} else {
+		log.Info.Println("Step Summary is written")
+	}
 }
