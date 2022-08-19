@@ -18,4 +18,6 @@ func WriteStepComment(scanReport *scan.Report) {
 	if err != nil {
 		log.Warning.Printf("Failed to write Step Comment. Error: %s", err.Error())
 	}
+
+	log.Debug.Printf("Current value: %s /n", os.Getenv(StepSummaryEnvVar))
 }
