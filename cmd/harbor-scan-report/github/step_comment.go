@@ -21,7 +21,7 @@ func WriteStepSummary(scanReport *scan.Report) {
 
 	message := "## It works!"
 
-	err := os.WriteFile(stepCommentFile, []byte(message), 0700)
+	err := os.WriteFile(stepCommentFile, []byte(message), 0644)
 	if err != nil {
 		log.Warning.Printf("Failed to write step summary. Got I/O error: %s \n", err.Error())
 	} else {
