@@ -11,10 +11,9 @@ const StepSummaryEnvVar = "GITHUB_STEP_SUMMARY"
 func WriteStepComment(scanReport *scan.Report) {
 	//append to GITHUB_STEP_SUMMARY env
 	report = scanReport
-	message := createMessage()
 
 	currentStepSummary := os.Getenv(StepSummaryEnvVar)
-	err := os.Setenv(StepSummaryEnvVar, currentStepSummary+message)
+	err := os.Setenv(StepSummaryEnvVar, currentStepSummary+"## It works!")
 	if err != nil {
 		log.Warning.Printf("Failed to write Step Comment. Error: %s", err.Error())
 	}
