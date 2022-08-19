@@ -43,9 +43,13 @@ func main() {
 	if config.Get().Github.Enabled {
 		github.WriteComment(scanReport)
 	}
-
+	//write step comment
+	if config.Get().Github.HasToken {
+		github.WriteStepComment(scanReport)
+	}
+	//fail job if image has more critical vulnerabilities than allowed
 	if scanReport.TopSeverity.IsMoreCriticalThen(config.Get().MaxAllowedSeverity) {
-		log.Error.Fatalf("Image has vulnerabilities that are more critical then allowed severity %s. "+
+		log.Error.Fatalf("Image has vulnerabilities that are more critical than allowed severity %s. "+
 			"Check failed \n",
 			config.Get().MaxAllowedSeverity.String())
 	}

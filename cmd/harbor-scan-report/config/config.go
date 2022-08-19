@@ -59,6 +59,7 @@ func init() {
 		},
 		Github: Github{
 			Enabled:    false,
+			HasToken:   false,
 			Token:      getGithubToken(),
 			CommentUrl: getGithubCommentUrl(),
 		},
@@ -154,6 +155,7 @@ func getGithubCommentUrl() string {
 
 func updateGitHubState() {
 	config.Github.Enabled = util.IsStringPresent(config.Github.Token) && util.IsStringPresent(config.Github.CommentUrl)
+	config.Github.HasToken = util.IsStringPresent(config.Github.Token)
 }
 
 func createTimer() {

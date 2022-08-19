@@ -33,6 +33,7 @@ type HarborCredentials struct {
 
 type Github struct {
 	Enabled    bool
+	HasToken   bool
 	Token      string
 	CommentUrl string
 }
