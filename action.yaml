@@ -57,7 +57,7 @@ runs:
   using: 'docker'
   # uncomment for dev purposes
   # image: 'Dockerfile'
-  image: 'docker://kio.ee/kyberorg/hsr:v0.4'
+  image: 'docker://kio.ee/kyberorg/hsr:v0.5-rc1'
   args:
     - ${{ inputs.harbor-host }}
     - ${{ inputs.harbor-robot }}
