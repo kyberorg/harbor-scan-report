@@ -31,5 +31,6 @@ jobs:
           harbor-host: kio.ee
           harbor-robot: ${{ secrets.HARBOR_ROBOT }}
           harbor-token: ${{ secrets.HARBOR_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           image: kio.ee/kyberorg/hsr:dev
           max-allowed-severity: high
