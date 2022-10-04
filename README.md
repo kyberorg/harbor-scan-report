@@ -99,6 +99,16 @@ Default value: `critical`
 
 * `critical` means that action never fails, even if image has critical vulnerabilities.
 
+### `report-sort-by`
+Sorting criteria for Vulnerability Report. 
+
+Valid Values: `severity`, `score`
+
+Default value: `severity`
+
+* `severity` means that report will be sorted by Harbor's Severity
+* `score` means that report will be sorted by CVSSv3 Score
+
 ### `github-url`
 GitHub API endpoint to use. Normally, you would use built-in var `github.event.issue.comments_url` for commenting issues
 or `github.event.pull_request.comments_url` - for commenting pull requests.

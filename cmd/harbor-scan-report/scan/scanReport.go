@@ -7,16 +7,12 @@ import (
 )
 
 type Report struct {
-	Failed                  bool
-	GeneratedAt             time.Time
-	Scanner                 Scanner
-	Counters                Counters
-	TopSeverity             severity.Severity
-	AllVulnerabilities      []Vulnerability
-	CriticalVulnerabilities []Vulnerability
-	HighVulnerabilities     []Vulnerability
-	MediumVulnerabilities   []Vulnerability
-	LowVulnerabilities      []Vulnerability
+	Failed          bool
+	GeneratedAt     time.Time
+	Scanner         Scanner
+	Counters        Counters
+	TopSeverity     severity.Severity
+	Vulnerabilities []Vulnerability
 }
 
 type Scanner struct {

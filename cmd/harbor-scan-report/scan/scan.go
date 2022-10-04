@@ -11,6 +11,7 @@ import (
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/util"
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/webutil"
 	"io"
+	"sort"
 	"time"
 )
 
@@ -162,13 +163,9 @@ func doPause() {
 
 func generateScanReport(json harbor.ScanResultsJson) *Report {
 	report := &Report{
-		Failed:                  false,
-		GeneratedAt:             json.VulnerabilityReport.GeneratedAt,
-		AllVulnerabilities:      []Vulnerability{},
-		CriticalVulnerabilities: []Vulnerability{},
-		HighVulnerabilities:     []Vulnerability{},
-		MediumVulnerabilities:   []Vulnerability{},
-		LowVulnerabilities:      []Vulnerability{},
+		Failed:          false,
+		GeneratedAt:     json.VulnerabilityReport.GeneratedAt,
+		Vulnerabilities: []Vulnerability{},
 	}
 	report.Scanner = Scanner{
 		Name:    json.VulnerabilityReport.Scanner.Name,
@@ -181,8 +178,10 @@ func generateScanReport(json harbor.ScanResultsJson) *Report {
 		report.TopSeverity = severity.None
 	}
 
-	fixableVulnerabilityCounter := 0
+	report.Counters = Counters{}
+
 	for _, v := range json.VulnerabilityReport.Vulnerabilities {
+		report.Counters.Total++
 		currentSeverity := severity.CreateFromString(v.Severity)
 		if currentSeverity.IsNotValid() {
 			log.Warning.Printf("Skipping %s: wrong severity \n", v.ID)
@@ -200,34 +199,37 @@ func generateScanReport(json harbor.ScanResultsJson) *Report {
 			vuln.Url = v.Links[0]
 		}
 		if vuln.HasFixVersion() {
-			fixableVulnerabilityCounter++
+			report.Counters.Fixable++
 		}
-		report.AllVulnerabilities = append(report.AllVulnerabilities, vuln)
+		report.Vulnerabilities = append(report.Vulnerabilities, vuln)
+		sortVulnerabilities(report.Vulnerabilities)
+
 		switch currentSeverity {
 		case severity.Critical:
-			report.CriticalVulnerabilities = append(report.CriticalVulnerabilities, vuln)
+			report.Counters.Critical++
 			break
 		case severity.High:
-			report.HighVulnerabilities = append(report.HighVulnerabilities, vuln)
-			break
+			report.Counters.High++
 		case severity.Medium:
-			report.MediumVulnerabilities = append(report.MediumVulnerabilities, vuln)
+			report.Counters.Medium++
 			break
 		case severity.Low:
-			report.LowVulnerabilities = append(report.LowVulnerabilities, vuln)
+			report.Counters.Low++
 			break
 		default:
 			log.Warning.Printf("%s has unknown severity %s. Skipping.\n", vuln.ID, vuln.Severity)
 		}
 	}
-	report.Counters = Counters{
-		Total: len(report.CriticalVulnerabilities) + len(report.HighVulnerabilities) +
-			len(report.MediumVulnerabilities) + len(report.LowVulnerabilities),
-		Fixable:  fixableVulnerabilityCounter,
-		Critical: len(report.CriticalVulnerabilities),
-		High:     len(report.HighVulnerabilities),
-		Medium:   len(report.MediumVulnerabilities),
-		Low:      len(report.LowVulnerabilities),
-	}
+
 	return report
+}
+
+func sortVulnerabilities(vulnerabilities []Vulnerability) {
+	switch config.Get().Report.SortBy {
+	case config.Score:
+		sort.Sort(ByScore(vulnerabilities))
+		break
+	default:
+		sort.Sort(BySeverity(vulnerabilities))
+	}
 }

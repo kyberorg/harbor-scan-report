@@ -12,6 +12,7 @@ type appConfig struct {
 	MaxAllowedSeverity severity.Severity
 	Comment            Comment
 	Timing             Timing
+	Report             Report
 }
 
 type Harbor struct {
@@ -53,4 +54,8 @@ type Comment struct {
 type Timing struct {
 	Timeout       int
 	CheckInterval int
+}
+
+type Report struct {
+	SortBy SortCriteria
 }
