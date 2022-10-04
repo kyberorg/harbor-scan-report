@@ -57,5 +57,6 @@ type Timing struct {
 }
 
 type Report struct {
-	SortBy SortCriteria
+	SortBy          SortCriteria
+	ShowFixableOnly bool
 }

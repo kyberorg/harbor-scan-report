@@ -80,7 +80,8 @@ func init() {
 			CheckInterval: getCheckInterval(),
 		},
 		Report: Report{
-			SortBy: getSortCriteria(),
+			SortBy:          getSortCriteria(),
+			ShowFixableOnly: getShowFixableOnly(),
 		},
 	}
 	updateCredentialsState()
@@ -303,6 +304,19 @@ func getSortCriteria() SortCriteria {
 		return DefaultSortCriteria
 	}
 	return CreateSortCriteriaFromString(sortCriteriaString)
+}
+
+func getShowFixableOnly() bool {
+	fixableOnlyString := os.Getenv("REPORT_ONLY_FIXABLE")
+	if util.IsStringEmpty(fixableOnlyString) {
+		return false
+	}
+	fixableOnly, err := strconv.ParseBool(fixableOnlyString)
+	if err != nil {
+		err = errors.New("parameter 'report-only-fixable' should have only boolean value (true/false)")
+		util.ExitOnError(err)
+	}
+	return fixableOnly
 }
 
 func parseImage() string {
