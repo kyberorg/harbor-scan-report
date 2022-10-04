@@ -164,6 +164,7 @@ func generateScanReport(json harbor.ScanResultsJson) *Report {
 	report := &Report{
 		Failed:                  false,
 		GeneratedAt:             json.VulnerabilityReport.GeneratedAt,
+		AllVulnerabilities:      []Vulnerability{},
 		CriticalVulnerabilities: []Vulnerability{},
 		HighVulnerabilities:     []Vulnerability{},
 		MediumVulnerabilities:   []Vulnerability{},
@@ -192,14 +193,16 @@ func generateScanReport(json harbor.ScanResultsJson) *Report {
 			Version:     v.Version,
 			FixVersion:  v.FixVersion,
 			Severity:    currentSeverity,
+			Score:       v.VendorAttributes.Cvss.Nvd.V3Score,
 			Description: v.Description,
 		}
 		if len(v.Links) > 0 {
 			vuln.Url = v.Links[0]
 		}
-		if util.IsStringPresent(v.FixVersion) {
+		if vuln.HasFixVersion() {
 			fixableVulnerabilityCounter++
 		}
+		report.AllVulnerabilities = append(report.AllVulnerabilities, vuln)
 		switch currentSeverity {
 		case severity.Critical:
 			report.CriticalVulnerabilities = append(report.CriticalVulnerabilities, vuln)

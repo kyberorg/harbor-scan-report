@@ -1,3 +1,3 @@
 module github.com/kyberorg/harbor-scan-report
 
-go 1.18
+go 1.19

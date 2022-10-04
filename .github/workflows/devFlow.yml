@@ -26,7 +26,7 @@ jobs:
 
     steps:
       - name: Run Report
-        uses: kyberorg/harbor-scan-report@9-timing
+        uses: kyberorg/harbor-scan-report@19-no-fail-when-unfixable
         with:
           harbor-host: kio.ee
           harbor-robot: ${{ secrets.HARBOR_ROBOT }}

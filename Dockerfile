@@ -1,4 +1,4 @@
-FROM kio.ee/base/go:1.18 as builder
+FROM kio.ee/base/go:1.19 as builder
 WORKDIR /go/src/app
 COPY cmd cmd
 COPY Makefile Makefile

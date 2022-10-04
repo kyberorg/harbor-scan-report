@@ -6,6 +6,7 @@ import (
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/github"
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/image"
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/log"
+	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/report"
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/scan"
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/util"
 )
@@ -44,9 +45,23 @@ func main() {
 		github.WriteComment(scanReport)
 	}
 
+	report.WriteListOfVulnerabilities(scanReport)
+
 	if scanReport.TopSeverity.IsMoreCriticalThen(config.Get().MaxAllowedSeverity) {
-		log.Error.Fatalf("Image has vulnerabilities that are more critical then allowed severity %s. "+
-			"Check failed \n",
-			config.Get().MaxAllowedSeverity.String())
+		var hasFixableVulnerabilities bool
+		for _, vuln := range scanReport.AllVulnerabilities {
+			if vuln.Severity.IsMoreCriticalThen(config.Get().MaxAllowedSeverity) {
+				if vuln.HasFixVersion() {
+					hasFixableVulnerabilities = true
+					break
+				}
+			}
+		}
+		if hasFixableVulnerabilities {
+			log.Error.Fatalf("Image has fixable vulnerabilities that are more critical "+
+				"then allowed severity %s. "+
+				"Check failed \n",
+				config.Get().MaxAllowedSeverity.String())
+		}
 	}
 }
