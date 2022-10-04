@@ -45,6 +45,7 @@ This action consists from 2 parts:
           timeout: 150
           check-interval: 10
           max-allowed-severity: high
+          report-sort-by: score
           github-url: ${{ github.event.pull_request.comments_url }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 ```
