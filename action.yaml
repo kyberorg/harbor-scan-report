@@ -27,6 +27,10 @@ inputs:
     description: 'Sorting criteria for Vulnerability Report. Values: severity, score'
     required: false
     default: 'severity'
+  report-only-fixable:
+    description: 'If set to true, Vulnerability Report will contain only items that have fix version'
+    required: false
+    default: 'false'
   github-url:
     description: "github.event.issue.comments_url - for issue, github.event.pull_request.comments_url - for PR"
     required: false
@@ -61,7 +65,7 @@ runs:
   using: 'docker'
   # uncomment for dev purposes
   # image: 'Dockerfile'
-  image: 'docker://kio.ee/kyberorg/hsr:v0.5.1'
+  image: 'docker://kio.ee/kyberorg/hsr:v0.5.2'
   args:
     - ${{ inputs.harbor-host }}
     - ${{ inputs.harbor-robot }}
@@ -78,3 +82,4 @@ runs:
     - ${{ inputs.check-interval }}
     - ${{ inputs.digest }}
     - ${{ inputs.report-sort-by }}
+    - ${{ inputs.report-only-fixable }}

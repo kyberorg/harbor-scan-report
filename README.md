@@ -46,6 +46,7 @@ This action consists from 2 parts:
           check-interval: 10
           max-allowed-severity: high
           report-sort-by: score
+          report-only-fixable: true
           github-url: ${{ github.event.pull_request.comments_url }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 ```
@@ -109,6 +110,15 @@ Default value: `severity`
 
 * `severity` means that report will be sorted by Harbor's Severity
 * `score` means that report will be sorted by CVSSv3 Score
+
+### `report-only-fixable`
+If enabled (set to true), Vulnerability Report will contain only items that have fix version.
+
+Valid values: `true` and `false`
+
+Default value: `false`
+
+Required: `no`
 
 ### `github-url`
 GitHub API endpoint to use. Normally, you would use built-in var `github.event.issue.comments_url` for commenting issues

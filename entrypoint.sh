@@ -28,6 +28,6 @@ export CHECK_INTERVAL=${13}
 
 # Report
 export REPORT_SORT_BY=${15}
-
+export REPORT_ONLY_FIXABLE=${16}
 # Run it!
 /hsr

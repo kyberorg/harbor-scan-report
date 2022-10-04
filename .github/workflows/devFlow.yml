@@ -26,10 +26,10 @@ jobs:
 
     steps:
       - name: Run Report
-        uses: kyberorg/harbor-scan-report@21-sort-report
+        uses: kyberorg/harbor-scan-report@22-report-only-fixable
         with:
           harbor-host: kio.ee
           harbor-robot: ${{ secrets.HARBOR_ROBOT }}
           harbor-token: ${{ secrets.HARBOR_TOKEN }}
-          image: kio.ee/kyberorg/hsr:dev
+          image: kio.ee/hub/library/centos:latest
           max-allowed-severity: high

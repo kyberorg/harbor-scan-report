@@ -2,6 +2,7 @@ package report
 
 import (
 	"fmt"
+	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/config"
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/scan"
 )
 
@@ -18,6 +19,13 @@ func WriteListOfVulnerabilities(scanReport *scan.Report) {
 		return
 	}
 	fmt.Println("======= List of Vulnerabilities =======")
+	if config.Get().Report.ShowFixableOnly && scanReport.Counters.Fixable == 0 {
+		fmt.Printf("All %d vulnerabilities reported have no remediation available yet. \n",
+			scanReport.Counters.Total)
+		fmt.Println("")
+		return
+	}
+
 	for _, vuln := range scanReport.Vulnerabilities {
 		cve := vuln.ID
 		severity := vuln.Severity
@@ -30,10 +38,19 @@ func WriteListOfVulnerabilities(scanReport *scan.Report) {
 		if vuln.HasFixVersion() {
 			fixVersion = vuln.FixVersion
 		} else {
-			fixVersion = "UNFIXABLE"
+			if config.Get().Report.ShowFixableOnly {
+				//skipping unfixable CVE
+				continue
+			} else {
+				fixVersion = "UNFIXABLE"
+			}
 		}
 		fmt.Printf("%s %s. Score (CVSSv3): %.1f %s. Affected Package: %s %s. Fixed in: %s \n",
 			cve, severity, score, severityFromCVSS, affectedPackage, vulnerableVersion, fixVersion)
+	}
+	if config.Get().Report.ShowFixableOnly {
+		fmt.Printf("...and %d vulnerabilities with no remediation available yet. \n",
+			scanReport.Counters.Total-scanReport.Counters.Fixable)
 	}
 	fmt.Println("")
 }
