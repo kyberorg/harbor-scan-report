@@ -1,7 +1,7 @@
 package report
 
 import (
-	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/log"
+	"fmt"
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/scan"
 )
 
@@ -17,7 +17,7 @@ func WriteListOfVulnerabilities(scanReport *scan.Report) {
 	if len(scanReport.AllVulnerabilities) == 0 {
 		return
 	}
-	log.Info.Println("List of Vulnerabilities")
+	fmt.Println("======= List of Vulnerabilities =======")
 	for _, vuln := range scanReport.AllVulnerabilities {
 		cve := vuln.ID
 		severity := vuln.Severity
@@ -32,9 +32,10 @@ func WriteListOfVulnerabilities(scanReport *scan.Report) {
 		} else {
 			fixVersion = "UNFIXABLE"
 		}
-		log.Info.Printf("%s %s Score (CVSS): %s %s. Affected Package: %s %s. Fixed in: %s \n",
+		fmt.Printf("%s %s. Score (CVSSv3): %.1f %s. Affected Package: %s %s. Fixed in: %s \n",
 			cve, severity, score, severityFromCVSS, affectedPackage, vulnerableVersion, fixVersion)
 	}
+	fmt.Println("")
 }
 
 func severityFromScore(score float64) string {
