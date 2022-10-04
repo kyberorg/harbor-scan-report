@@ -2,6 +2,7 @@ package scan
 
 import (
 	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/severity"
+	"github.com/kyberorg/harbor-scan-report/cmd/harbor-scan-report/util"
 	"time"
 )
 
@@ -11,6 +12,7 @@ type Report struct {
 	Scanner                 Scanner
 	Counters                Counters
 	TopSeverity             severity.Severity
+	AllVulnerabilities      []Vulnerability
 	CriticalVulnerabilities []Vulnerability
 	HighVulnerabilities     []Vulnerability
 	MediumVulnerabilities   []Vulnerability
@@ -30,7 +32,12 @@ type Vulnerability struct {
 	Version     string
 	FixVersion  string
 	Severity    severity.Severity
+	Score       float64
 	Description string
+}
+
+func (v Vulnerability) HasFixVersion() bool {
+	return util.IsStringPresent(v.FixVersion)
 }
 
 type Counters struct {
