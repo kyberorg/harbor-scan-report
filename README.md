@@ -45,6 +45,7 @@ This action consists from 2 parts:
           timeout: 150
           check-interval: 10
           max-allowed-severity: high
+          report-sort-by: score
           github-url: ${{ github.event.pull_request.comments_url }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 ```
@@ -98,6 +99,16 @@ Default value: `critical`
 * `none` means zero-tolerance to any vulnerabilities i.e. action succeeds only if image hasn't any vulnerabilities.
 
 * `critical` means that action never fails, even if image has critical vulnerabilities.
+
+### `report-sort-by`
+Sorting criteria for Vulnerability Report. 
+
+Valid Values: `severity`, `score`
+
+Default value: `severity`
+
+* `severity` means that report will be sorted by Harbor's Severity
+* `score` means that report will be sorted by CVSSv3 Score
 
 ### `github-url`
 GitHub API endpoint to use. Normally, you would use built-in var `github.event.issue.comments_url` for commenting issues

@@ -14,11 +14,11 @@ const (
 )
 
 func WriteListOfVulnerabilities(scanReport *scan.Report) {
-	if len(scanReport.AllVulnerabilities) == 0 {
+	if len(scanReport.Vulnerabilities) == 0 {
 		return
 	}
 	fmt.Println("======= List of Vulnerabilities =======")
-	for _, vuln := range scanReport.AllVulnerabilities {
+	for _, vuln := range scanReport.Vulnerabilities {
 		cve := vuln.ID
 		severity := vuln.Severity
 		score := vuln.Score

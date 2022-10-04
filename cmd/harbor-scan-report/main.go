@@ -49,7 +49,7 @@ func main() {
 
 	if scanReport.TopSeverity.IsMoreCriticalThen(config.Get().MaxAllowedSeverity) {
 		var hasFixableVulnerabilities bool
-		for _, vuln := range scanReport.AllVulnerabilities {
+		for _, vuln := range scanReport.Vulnerabilities {
 			if vuln.Severity.IsMoreCriticalThen(config.Get().MaxAllowedSeverity) {
 				if vuln.HasFixVersion() {
 					hasFixableVulnerabilities = true

@@ -19,6 +19,7 @@ const (
 	DefaultCommentTitle  = "Docker Image Vulnerability Report"
 	DefaultTimeout       = 120
 	DefaultCheckInterval = 5
+	DefaultSortCriteria  = Severity
 )
 
 var (
@@ -77,6 +78,9 @@ func init() {
 		Timing: Timing{
 			Timeout:       getTimeout(),
 			CheckInterval: getCheckInterval(),
+		},
+		Report: Report{
+			SortBy: getSortCriteria(),
 		},
 	}
 	updateCredentialsState()
@@ -291,6 +295,14 @@ func getCheckInterval() int {
 		util.ExitOnError(err)
 	}
 	return interval
+}
+
+func getSortCriteria() SortCriteria {
+	sortCriteriaString := os.Getenv("REPORT_SORT_BY")
+	if util.IsStringEmpty(sortCriteriaString) {
+		return DefaultSortCriteria
+	}
+	return CreateSortCriteriaFromString(sortCriteriaString)
 }
 
 func parseImage() string {

@@ -23,6 +23,10 @@ inputs:
     description: 'Minimum Vulnerability severity after which action considered as failed. Values: none, low, medium, high, critical'
     required: false
     default: 'critical'
+  report-sort-by:
+    description: 'Sorting criteria for Vulnerability Report. Values: severity, score'
+    required: false
+    default: 'severity'
   github-url:
     description: "github.event.issue.comments_url - for issue, github.event.pull_request.comments_url - for PR"
     required: false
@@ -57,7 +61,7 @@ runs:
   using: 'docker'
   # uncomment for dev purposes
   # image: 'Dockerfile'
-  image: 'docker://kio.ee/kyberorg/hsr:v0.5'
+  image: 'docker://kio.ee/kyberorg/hsr:v0.5.1'
   args:
     - ${{ inputs.harbor-host }}
     - ${{ inputs.harbor-robot }}
@@ -73,3 +77,4 @@ runs:
     - ${{ inputs.timeout }}
     - ${{ inputs.check-interval }}
     - ${{ inputs.digest }}
+    - ${{ inputs.report-sort-by }}

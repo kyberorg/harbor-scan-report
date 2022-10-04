@@ -26,5 +26,8 @@ export COMMENT_MODE=${11}
 export TIMEOUT=${12}
 export CHECK_INTERVAL=${13}
 
+# Report
+export REPORT_SORT_BY=${15}
+
 # Run it!
 /hsr
